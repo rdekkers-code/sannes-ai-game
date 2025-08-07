@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sanne's AI Avontuur</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9fbfd;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: #4a90e2;
+      color: #fff;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 1rem;
+    }
+    .instructions {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .scoreboard {
+      background: #f0f6ff;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-around;
+      font-weight: bold;
+    }
+    #canvas-container {
+      position: relative;
+      margin: auto;
+      width: 600px;
+      height: 600px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    #myCanvas {
+      width: 100%;
+      height: 100%;
+    }
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button.train {
+      background: #4caf50;
+      color: #fff;
+    }
+    button.test {
+      background: #2196f3;
+      color: #fff;
+    }
+    button.reset {
+      background: #f44336;
+      color: #fff;
+    }
+    button:hover {
+      filter: brightness(1.1);
+    }
+    /* Popup for labeling */
+    .popup {
+      position: absolute;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 10;
+    }
+    .popup button {
+      margin: 0.2rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+    .classA {
+      background: #ff9800;
+    }
+    .classB {
+      background: #9c27b0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sanne's AI Avontuur</h1>
+    <p>Train je eigen mini-AI door gegevens te labelen en zie hoe slim hij wordt!</p>
+  </header>
+  <main>
+    <div class="instructions">
+      <h2>Hoe speel je?</h2>
+      <p>
+        Op het speelveld hieronder staan verschillende stippen. Elke stip hoort bij een
+        verborgen klasse (oranje of paars). Klik op een stip om te bepalen tot welke
+        klasse hij hoort. Kies een kleur in de pop-up die verschijnt. Wanneer je genoeg
+        punten gelabeld hebt, klik je op <strong>Train AI</strong> om de AI te laten leren
+        van jouw labels. Daarna kun je met <strong>Test AI</strong> zien hoe goed je AI
+        de overige punten kan voorspellen. Probeer een nauwkeurigheid van minstens
+        90% te halen!
+      </p>
+    </div>
+    <div class="scoreboard">
+      <div>Gelabelde punten: <span id="labeledCount">0</span></div>
+      <div>Training iteraties: <span id="iterations">0</span></div>
+      <div>Nauwkeurigheid: <span id="accuracy">---</span></div>
+    </div>
+    <div id="canvas-container">
+      <canvas id="myCanvas" width="600" height="600"></canvas>
+      <div class="popup" id="popup">
+        <p>Kies klasse:</p>
+        <button class="classA" onclick="labelPoint(1)">Oranje</button>
+        <button class="classB" onclick="labelPoint(-1)">Paars</button>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="train" onclick="trainAI()">Train AI</button>
+      <button class="test" onclick="testAI()">Test AI</button>
+      <button class="reset" onclick="initGame()">Herstart</button>
+    </div>
+  </main>
+  <script>
+    // Canvas and game variables
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+    const popup = document.getElementById('popup');
+    let data = [];
+    let currentIndex = null; // index of the point being labeled
+    let weights = [0, 0, 0]; // perceptron weights [w0, w1, bias]
+    let iterations = 0;
+
+    // Generate a linearly separable dataset for demonstration
+    function generateData(numPoints = 60) {
+      data = [];
+      // Random decision boundary: y = m*x + b
+      const m = Math.random() * 2 - 1; // slope between -1 and 1
+      const b = Math.random() * 400 - 200; // intercept between -200 and 200
+      for (let i = 0; i < numPoints; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        // Determine true label based on line
+        const lineY = m * x + (canvas.height/2 + b);
+        const trueLabel = y > lineY ? 1 : -1;
+        data.push({ x, y, trueLabel, userLabel: null, prediction: null });
+      }
+    }
+
+    // Draw all points and boundary
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Draw points
+      for (let i = 0; i < data.length; i++) {
+        const pt = data[i];
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 6, 0, Math.PI * 2);
+        // Determine color
+        let fillColor = '#cccccc';
+        if (pt.userLabel === 1) fillColor = '#ff9800';
+        if (pt.userLabel === -1) fillColor = '#9c27b0';
+        if (pt.prediction !== null && pt.userLabel === null) {
+          // color predictions for unlabeled points after testing
+          fillColor = pt.prediction === 1 ? 'rgba(255, 152, 0, 0.5)' : 'rgba(156, 39, 176, 0.5)';
+        }
+        ctx.fillStyle = fillColor;
+        ctx.strokeStyle = '#555';
+        ctx.fill();
+        ctx.stroke();
+      }
+      // Draw decision boundary if trained
+      if (iterations > 0) {
+        const w0 = weights[0];
+        const w1 = weights[1];
+        const bias = weights[2];
+        // avoid division by zero
+        if (w1 !== 0) {
+          const x1 = 0;
+          const y1 = -(w0 * x1 + bias) / w1;
+          const x2 = canvas.width;
+          const y2 = -(w0 * x2 + bias) / w1;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 5]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+    }
+
+    // Initialize the game
+    function initGame() {
+      generateData(60);
+      weights = [0, 0, 0];
+      iterations = 0;
+      document.getElementById('iterations').textContent = '0';
+      document.getElementById('accuracy').textContent = '---';
+      updateLabeledCount();
+      data.forEach(pt => { pt.prediction = null; pt.userLabel = null; });
+      draw();
+    }
+
+    // Update labeled count display
+    function updateLabeledCount() {
+      const count = data.filter(pt => pt.userLabel !== null).length;
+      document.getElementById('labeledCount').textContent = count;
+    }
+
+    // Canvas click handler to label points
+    canvas.addEventListener('click', function (e) {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      // Find nearest point within radius
+      for (let i = 0; i < data.length; i++) {
+        const pt = data[i];
+        const dx = pt.x - clickX;
+        const dy = pt.y - clickY;
+        // Increase click radius to make selection easier
+        if (Math.sqrt(dx * dx + dy * dy) < 12) {
+          currentIndex = i;
+          // Position popup near the point, adjust for scroll
+          const scrollY = window.scrollY || document.documentElement.scrollTop;
+          const scrollX = window.scrollX || document.documentElement.scrollLeft;
+          popup.style.left = `${pt.x + rect.left + 20 - scrollX}px`;
+          popup.style.top = `${pt.y + rect.top + 20 - scrollY}px`;
+          popup.style.display = 'block';
+          break;
+        }
+      }
+    });
+
+    // Label selected point with given class
+    function labelPoint(label) {
+      if (currentIndex !== null) {
+        data[currentIndex].userLabel = label;
+        popup.style.display = 'none';
+        currentIndex = null;
+        updateLabeledCount();
+        draw();
+      }
+    }
+
+    // Hide popup if clicking elsewhere
+    document.addEventListener('click', function (e) {
+      // do not close if clicking popup
+      if (e.target.closest('.popup') === null && e.target.closest('canvas') === null) {
+        popup.style.display = 'none';
+      }
+    });
+
+    // Train AI using perceptron algorithm
+    function trainAI() {
+      const trainingData = data.filter(pt => pt.userLabel !== null);
+      if (trainingData.length === 0) {
+        alert('Label eerst wat punten voordat je gaat trainen.');
+        return;
+      }
+      // Reset weights and iteration counter
+      weights = [0, 0, 0];
+      iterations = 0;
+      // Simple perceptron training loop
+      // We scale coordinates down to avoid extremely small updates
+      for (let epoch = 0; epoch < 100; epoch++) {
+        for (const pt of trainingData) {
+          const xVec = [pt.x / canvas.width, pt.y / canvas.height, 1];
+          const dot = weights[0] * xVec[0] + weights[1] * xVec[1] + weights[2] * xVec[2];
+          const prediction = dot >= 0 ? 1 : -1;
+          if (prediction !== pt.userLabel) {
+            // Update weights with small learning rate
+            const lr = 0.1;
+            weights[0] += lr * pt.userLabel * xVec[0];
+            weights[1] += lr * pt.userLabel * xVec[1];
+            weights[2] += lr * pt.userLabel * xVec[2];
+          }
+          iterations++;
+        }
+      }
+      document.getElementById('iterations').textContent = iterations;
+      // Clear previous predictions
+      data.forEach(pt => pt.prediction = null);
+      draw();
+    }
+
+    // Test AI and compute accuracy on all unlabeled points
+    function testAI() {
+      if (iterations === 0) {
+        alert('Train eerst de AI voordat je test.');
+        return;
+      }
+      let correct = 0;
+      let total = 0;
+      for (const pt of data) {
+        const xVec = [pt.x / canvas.width, pt.y / canvas.height, 1];
+        const dot = weights[0] * xVec[0] + weights[1] * xVec[1] + weights[2] * xVec[2];
+        const prediction = dot >= 0 ? 1 : -1;
+        pt.prediction = prediction;
+        // Evaluate accuracy only on unlabeled points to encourage labeling
+        if (pt.userLabel === null) {
+          total++;
+          if (prediction === pt.trueLabel) correct++;
+        }
+      }
+      const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+      document.getElementById('accuracy').textContent = `${accuracy}%`;
+      draw();
+      if (accuracy >= 90) {
+        setTimeout(() => alert('Gefeliciteerd! Je AI heeft een nauwkeurigheid van ' + accuracy + '%. Goed gedaan!'), 10);
+      }
+    }
+
+    // Initialize the game on load
+    initGame();
+  </script>
+</body>
+</html>
