@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanne's AI Avonturen Quiz</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">🤖✨</div>
+        <div>
+          <h1>Sanne's AI Avonturen Quiz</h1>
+          <p class="sub">Elke keer 10 nieuwe vragen. Speels, slim en een tikje ondeugend.</p>
+        </div>
+      </div>
+
+      <div class="pill-row">
+        <span class="pill" id="pill-level">Level: Starter</span>
+        <span class="pill" id="pill-score">Score: 0</span>
+        <span class="pill" id="pill-q">Vraag: 0/10</span>
+      </div>
+    </header>
+
+    <main class="card">
+      <section id="storyView">
+        <h2>Voorleesverhaal (ongeveer 5 minuten)</h2>
+        <p class="hint">Tip: Lees dit eerst samen, of laat Sanne het zelf lezen. Daarna start de quiz.</p>
+
+        <div class="story" id="storyText"></div>
+
+        <div class="row">
+          <button class="btn primary" id="btnStart">Start de 10-vragen quiz 🚀</button>
+          <button class="btn" id="btnShuffle">Nieuw verhaalfragment 🎭</button>
+        </div>
+
+        <div class="small">
+          Elke keer dat je opnieuw laadt, krijg je 10 andere vragen uit een grote vragenkist.
+        </div>
+      </section>
+
+      <section id="quizView" class="hidden">
+        <div class="quizTop">
+          <h2 id="qTitle">Vraag</h2>
+          <div class="progress">
+            <div class="bar" id="progressBar"></div>
+          </div>
+        </div>
+
+        <div class="qBox">
+          <div class="qText" id="qText"></div>
+          <div class="answers" id="answers"></div>
+        </div>
+
+        <div id="feedback" class="feedback hidden"></div>
+
+        <div class="row">
+          <button class="btn" id="btnBackToStory">Terug naar verhaal</button>
+          <button class="btn primary" id="btnNext" disabled>Volgende vraag ➜</button>
+        </div>
+      </section>
+
+      <section id="resultView" class="hidden">
+        <h2>Resultaat</h2>
+        <p id="resultLine" class="resultLine"></p>
+
+        <div class="badgeRow" id="badges"></div>
+
+        <div class="row">
+          <button class="btn primary" id="btnPlayAgain">Nieuwe 10 vragen 🔄</button>
+          <button class="btn" id="btnShowAnswers">Bekijk jouw antwoorden</button>
+        </div>
+
+        <div id="answerReview" class="hidden review"></div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p>Gemaakt voor Sanne. Thema: AI, nu en later. Veilig, slim, speels.</p>
+    </footer>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
