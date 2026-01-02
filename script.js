@@ -68,7 +68,10 @@
 
   function buildStory() {
     // Pak 1 intro, 3 scenes, 1 outro (mix) zodat het ongeveer 5 min blijft.
-    const intro = STORY_PARTS.intro[0]; // vaste start voor herkenning
+    const intro =
+  STORY_PARTS.intro[
+    Math.floor(Math.random() * STORY_PARTS.intro.length)
+  ]; // vaste start voor herkenning
     const scenes = shuffle([
       ...STORY_PARTS.scene1,
       ...STORY_PARTS.scene2,
