@@ -3,86 +3,677 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sanne's AI Avonturen Quiz</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Sanne AI Game</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #eef7ff 0%, #ffffff 100%);
+      color: #1f2a44;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .hero {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 2rem;
+    }
+    .sub {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .pill {
+      background: #e8f2ff;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: bold;
+    }
+    .menu, .game, .result {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    .hidden {
+      display: none;
+    }
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+    button {
+      border: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    button:hover {
+      transform: translateY(-2px);
+    }
+    .mode-btn {
+      background: #dff3e7;
+      color: #164b2f;
+    }
+    .primary {
+      background: #3b82f6;
+      color: white;
+    }
+    .secondary {
+      background: #eef2ff;
+      color: #243b74;
+    }
+    .answers {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .answer-btn {
+      background: #f7f9fc;
+      border: 2px solid transparent;
+      text-align: left;
+    }
+    .answer-btn.correct {
+      border-color: #28a745;
+      background: #eaf9ef;
+    }
+    .answer-btn.wrong {
+      border-color: #dc3545;
+      background: #fdecec;
+    }
+    .question-box {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 16px;
+      background: #f8fbff;
+    }
+    .question {
+      font-size: 1.5rem;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+    .small {
+      margin-top: 12px;
+      color: #5b6780;
+    }
+    .feedback {
+      margin-top: 16px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      min-height: 28px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .progress-wrap {
+      margin-top: 18px;
+    }
+    .progress {
+      width: 100%;
+      height: 14px;
+      background: #e8eef8;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: #3b82f6;
+      transition: width 0.3s ease;
+    }
+    .result h2 {
+      margin-top: 0;
+    }
+    .tip-box {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #fff8e8;
+      color: #6b5200;
+      line-height: 1.5;
+    }
+    .timer {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #9a3412;
+    }
+    @media (max-width: 640px) {
+      .question {
+        font-size: 1.25rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="top">
-      <div class="brand">
-        <div class="logo">🤖✨</div>
-        <div>
-          <h1>Sanne's AI Avonturen Quiz</h1>
-          <p class="sub">Elke keer 10 nieuwe vragen. Speels, slim en een tikje ondeugend.</p>
+  <div class="container">
+    <section class="hero">
+      <h1>🎮 Sanne AI Game</h1>
+      <p class="sub">
+        Oefenen op jouw niveau: rekenen, lezen en een beetje Engels.
+        Speciaal voor groep 6, met extra focus op snelheid.
+      </p>
+      <div class="stats">
+        <div class="pill" id="scorePill">Score: 0</div>
+        <div class="pill" id="roundPill">Vraag: 0/10</div>
+        <div class="pill" id="modePill">Onderdeel: -</div>
+      </div>
+    </section>
+
+    <section class="menu" id="menuView">
+      <h2>Kies een onderdeel</h2>
+      <p>Korte rondes van 10 vragen. Lekker snel en speels oefenen.</p>
+
+      <div class="button-grid">
+        <button class="mode-btn" onclick="startGame('math')">➕ Rekenen snelheid</button>
+        <button class="mode-btn" onclick="startGame('reading')">📖 Lezen snelheid</button>
+        <button class="mode-btn" onclick="startGame('english')">🇬🇧 Engels basis</button>
+      </div>
+
+      <div class="tip-box">
+        Beste aanpak: elke dag 10 minuten. Eerst rekenen, dan lezen, dan Engels.
+      </div>
+    </section>
+
+    <section class="game hidden" id="gameView">
+      <h2 id="gameTitle">Oefenen</h2>
+      <div class="timer" id="timerLine">Tijd: 10</div>
+
+      <div class="progress-wrap">
+        <div class="progress">
+          <div class="bar" id="progressBar"></div>
         </div>
       </div>
 
-      <div class="pill-row">
-        <span class="pill" id="pill-level">Level: Starter</span>
-        <span class="pill" id="pill-score">Score: 0</span>
-        <span class="pill" id="pill-q">Vraag: 0/10</span>
+      <div class="question-box">
+        <div class="question" id="questionText">Vraag komt hier</div>
+        <div class="small" id="questionExtra"></div>
+        <div class="answers" id="answers"></div>
+        <div class="feedback" id="feedback"></div>
       </div>
-    </header>
 
-    <main class="card">
-      <section id="storyView">
-        <h2>Voorleesverhaal (ongeveer 5 minuten)</h2>
-        <p class="hint">Tip: Lees dit eerst samen, of laat Sanne het zelf lezen. Daarna start de quiz.</p>
+      <div class="controls">
+        <button class="secondary" onclick="backToMenu()">← Terug</button>
+        <button class="primary" id="nextBtn" onclick="nextQuestion()" disabled>Volgende vraag</button>
+      </div>
+    </section>
 
-        <div class="story" id="storyText"></div>
-
-        <div class="row">
-          <button class="btn primary" id="btnStart">Start de 10-vragen quiz 🚀</button>
-          <button class="btn" id="btnShuffle">Nieuw verhaalfragment 🎭</button>
-        </div>
-
-        <div class="small">
-          Elke keer dat je opnieuw laadt, krijg je 10 andere vragen uit een grote vragenkist.
-        </div>
-      </section>
-
-      <section id="quizView" class="hidden">
-        <div class="quizTop">
-          <h2 id="qTitle">Vraag</h2>
-          <div class="progress">
-            <div class="bar" id="progressBar"></div>
-          </div>
-        </div>
-
-        <div class="qBox">
-          <div class="qText" id="qText"></div>
-          <div class="answers" id="answers"></div>
-        </div>
-
-        <div id="feedback" class="feedback hidden"></div>
-
-        <div class="row">
-          <button class="btn" id="btnBackToStory">Terug naar verhaal</button>
-          <button class="btn primary" id="btnNext" disabled>Volgende vraag ➜</button>
-        </div>
-      </section>
-
-      <section id="resultView" class="hidden">
-        <h2>Resultaat</h2>
-        <p id="resultLine" class="resultLine"></p>
-
-        <div class="badgeRow" id="badges"></div>
-
-        <div class="row">
-          <button class="btn primary" id="btnPlayAgain">Nieuwe 10 vragen 🔄</button>
-          <button class="btn" id="btnShowAnswers">Bekijk jouw antwoorden</button>
-        </div>
-
-        <div id="answerReview" class="hidden review"></div>
-      </section>
-    </main>
-
-    <footer class="foot">
-      <p>Gemaakt voor Sanne. Thema: AI, nu en later. Veilig, slim, speels.</p>
-    </footer>
+    <section class="result hidden" id="resultView">
+      <h2>Goed gedaan, Sanne!</h2>
+      <p id="resultText"></p>
+      <div class="tip-box" id="resultTip"></div>
+      <div class="controls">
+        <button class="primary" onclick="restartSameMode()">Nog een ronde</button>
+        <button class="secondary" onclick="backToMenu()">Kies iets anders</button>
+      </div>
+    </section>
   </div>
 
-  <script src="questions.js"></script>
-  <script src="script.js"></script>
+  <script>
+    const readingQuestions = [
+      {
+        question: "Lees: 'De kat zit op de mat.' Welk woord rijmt op kat?",
+        extra: "",
+        answers: ["pet", "lat", "boom", "jas"],
+        correct: 1
+      },
+      {
+        question: "Lees: 'Jan loopt snel naar school.' Wie loopt naar school?",
+        extra: "",
+        answers: ["Piet", "Jan", "De juf", "Niemand"],
+        correct: 1
+      },
+      {
+        question: "Lees: 'De bal is rood.' Welke kleur heeft de bal?",
+        extra: "",
+        answers: ["Blauw", "Geel", "Rood", "Groen"],
+        correct: 2
+      },
+      {
+        question: "Welk woord lees je het snelst goed?",
+        extra: "",
+        answers: ["bibliotheek", "huis", "verkeersregel", "onbegrijpelijk"],
+        correct: 1
+      },
+      {
+        question: "Lees: 'Mila eet een appel in de tuin.' Wat eet Mila?",
+        extra: "",
+        answers: ["Een peer", "Een appel", "Een banaan", "Een koek"],
+        correct: 1
+      },
+      {
+        question: "Welk woord hoort bij lezen?",
+        extra: "",
+        answers: ["boek", "fiets", "bal", "jas"],
+        correct: 0
+      },
+      {
+        question: "Lees: 'De vogel vliegt hoog.' Wat doet de vogel?",
+        extra: "",
+        answers: ["Zwemt", "Rent", "Vliegt", "Slaapt"],
+        correct: 2
+      },
+      {
+        question: "Welk woord is het kortst?",
+        extra: "",
+        answers: ["boom", "ik", "school", "regenjas"],
+        correct: 1
+      },
+      {
+        question: "Lees: 'Sara pakt haar tas en gaat weg.' Wat pakt Sara?",
+        extra: "",
+        answers: ["Haar tas", "Een stoel", "Een boek", "Een appel"],
+        correct: 0
+      },
+      {
+        question: "Welk woord begint met dezelfde klank als 'maan'?",
+        extra: "",
+        answers: ["mes", "roos", "vis", "tak"],
+        correct: 0
+      },
+      {
+        question: "Lees: 'Het kind tekent een huis.' Wat tekent het kind?",
+        extra: "",
+        answers: ["Een boom", "Een auto", "Een huis", "Een vis"],
+        correct: 2
+      },
+      {
+        question: "Welk woord kun je in stukjes hakken als: speel-goed?",
+        extra: "",
+        answers: ["speelgoed", "tafel", "snel", "boek"],
+        correct: 0
+      }
+    ];
+
+    const englishQuestions = [
+      {
+        question: "Wat betekent 'dog'?",
+        extra: "",
+        answers: ["Hond", "Kat", "Vogel", "Vis"],
+        correct: 0
+      },
+      {
+        question: "Wat betekent 'book'?",
+        extra: "",
+        answers: ["Bal", "Boek", "Bed", "Brood"],
+        correct: 1
+      },
+      {
+        question: "Wat betekent 'red'?",
+        extra: "",
+        answers: ["Rood", "Groen", "Blauw", "Geel"],
+        correct: 0
+      },
+      {
+        question: "Wat betekent 'school'?",
+        extra: "",
+        answers: ["Tuin", "School", "Huis", "Stoel"],
+        correct: 1
+      },
+      {
+        question: "Wat betekent 'apple'?",
+        extra: "",
+        answers: ["Appel", "Peer", "Banaan", "Druif"],
+        correct: 0
+      },
+      {
+        question: "Hoe zeg je 'huis' in het Engels?",
+        extra: "",
+        answers: ["mouse", "house", "horse", "hand"],
+        correct: 1
+      },
+      {
+        question: "Hoe zeg je 'bedankt' in het Engels?",
+        extra: "",
+        answers: ["Please", "Sorry", "Thank you", "Hello"],
+        correct: 2
+      },
+      {
+        question: "Wat betekent 'cat'?",
+        extra: "",
+        answers: ["Kat", "Hond", "Koe", "Geit"],
+        correct: 0
+      },
+      {
+        question: "Hoe zeg je 'blauw' in het Engels?",
+        extra: "",
+        answers: ["Blue", "Black", "Brown", "Pink"],
+        correct: 0
+      },
+      {
+        question: "Wat betekent 'hello'?",
+        extra: "",
+        answers: ["Dag / hallo", "Tot morgen", "Eet smakelijk", "Kom hier"],
+        correct: 0
+      },
+      {
+        question: "Hoe zeg je 'één' in het Engels?",
+        extra: "",
+        answers: ["Two", "One", "Three", "Ten"],
+        correct: 1
+      },
+      {
+        question: "Wat betekent 'teacher'?",
+        extra: "",
+        answers: ["Bakker", "Brandweer", "Juf / meester", "Dokter"],
+        correct: 2
+      }
+    ];
+
+    function makeMathQuestion() {
+      const type = Math.floor(Math.random() * 4);
+
+      if (type === 0) {
+        const a = rand(2, 10);
+        const b = rand(2, 10);
+        return {
+          question: `${a} × ${b} = ?`,
+          extra: "Rekenen op snelheid",
+          answers: shuffle([
+            a * b,
+            a * b + rand(1, 4),
+            a * b - rand(1, 3),
+            a * b + rand(5, 8)
+          ]),
+          correctValue: a * b
+        };
+      }
+
+      if (type === 1) {
+        const a = rand(10, 80);
+        const b = rand(10, 20);
+        return {
+          question: `${a} + ${b} = ?`,
+          extra: "Plus som",
+          answers: shuffle([
+            a + b,
+            a + b + rand(1, 6),
+            a + b - rand(1, 5),
+            a + b + rand(7, 10)
+          ]),
+          correctValue: a + b
+        };
+      }
+
+      if (type === 2) {
+        const a = rand(20, 90);
+        const b = rand(2, 18);
+        return {
+          question: `${a} - ${b} = ?`,
+          extra: "Min som",
+          answers: shuffle([
+            a - b,
+            a - b + rand(1, 5),
+            a - b - rand(1, 4),
+            a - b + rand(6, 9)
+          ]),
+          correctValue: a - b
+        };
+      }
+
+      const table = rand(2, 10);
+      const answer = rand(2, 10);
+      return {
+        question: `${table * answer} ÷ ${table} = ?`,
+        extra: "Delen som",
+        answers: shuffle([
+          answer,
+          answer + 1,
+          answer - 1 < 0 ? answer + 2 : answer - 1,
+          answer + 3
+        ]),
+        correctValue: answer
+      };
+    }
+
+    function rand(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    let currentMode = "";
+    let questions = [];
+    let index = 0;
+    let score = 0;
+    let answered = false;
+    let timer = 10;
+    let timerId = null;
+
+    const menuView = document.getElementById("menuView");
+    const gameView = document.getElementById("gameView");
+    const resultView = document.getElementById("resultView");
+
+    const scorePill = document.getElementById("scorePill");
+    const roundPill = document.getElementById("roundPill");
+    const modePill = document.getElementById("modePill");
+
+    const gameTitle = document.getElementById("gameTitle");
+    const questionText = document.getElementById("questionText");
+    const questionExtra = document.getElementById("questionExtra");
+    const answersBox = document.getElementById("answers");
+    const feedback = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const progressBar = document.getElementById("progressBar");
+    const timerLine = document.getElementById("timerLine");
+
+    const resultText = document.getElementById("resultText");
+    const resultTip = document.getElementById("resultTip");
+
+    function startGame(mode) {
+      currentMode = mode;
+      questions = [];
+      index = 0;
+      score = 0;
+      answered = false;
+
+      if (mode === "math") {
+        gameTitle.textContent = "➕ Rekenen snelheid";
+        modePill.textContent = "Onderdeel: Rekenen";
+        for (let i = 0; i < 10; i++) {
+          questions.push(makeMathQuestion());
+        }
+      }
+
+      if (mode === "reading") {
+        gameTitle.textContent = "📖 Lezen snelheid";
+        modePill.textContent = "Onderdeel: Lezen";
+        questions = shuffle(readingQuestions).slice(0, 10);
+      }
+
+      if (mode === "english") {
+        gameTitle.textContent = "🇬🇧 Engels basis";
+        modePill.textContent = "Onderdeel: Engels";
+        questions = shuffle(englishQuestions).slice(0, 10);
+      }
+
+      menuView.classList.add("hidden");
+      resultView.classList.add("hidden");
+      gameView.classList.remove("hidden");
+
+      updatePills();
+      showQuestion();
+    }
+
+    function showQuestion() {
+      clearInterval(timerId);
+      answered = false;
+      nextBtn.disabled = true;
+      feedback.textContent = "";
+      feedback.style.color = "#1f2a44";
+      answersBox.innerHTML = "";
+
+      const q = questions[index];
+      questionText.textContent = q.question;
+      questionExtra.textContent = q.extra || "";
+      roundPill.textContent = `Vraag: ${index + 1}/10`;
+      progressBar.style.width = `${(index / 10) * 100}%`;
+
+      q.answers.forEach((answer, i) => {
+        const btn = document.createElement("button");
+        btn.className = "answer-btn";
+        btn.textContent = answer;
+        btn.onclick = () => chooseAnswer(i, btn);
+        answersBox.appendChild(btn);
+      });
+
+      timer = currentMode === "math" || currentMode === "reading" ? 10 : 12;
+      timerLine.textContent = `Tijd: ${timer}`;
+
+      timerId = setInterval(() => {
+        timer--;
+        timerLine.textContent = `Tijd: ${timer}`;
+        if (timer <= 0) {
+          clearInterval(timerId);
+          if (!answered) {
+            handleTimeout();
+          }
+        }
+      }, 1000);
+    }
+
+    function chooseAnswer(i, btn) {
+      if (answered) return;
+      answered = true;
+      clearInterval(timerId);
+
+      const q = questions[index];
+      const buttons = document.querySelectorAll(".answer-btn");
+
+      let isCorrect = false;
+
+      if (currentMode === "math") {
+        const chosenValue = Number(btn.textContent);
+        isCorrect = chosenValue === q.correctValue;
+        buttons.forEach(b => {
+          if (Number(b.textContent) === q.correctValue) b.classList.add("correct");
+        });
+      } else {
+        isCorrect = i === q.correct;
+        buttons[q.correct].classList.add("correct");
+      }
+
+      if (isCorrect) {
+        btn.classList.add("correct");
+        score++;
+        feedback.textContent = "Goed gedaan!";
+        feedback.style.color = "#17803d";
+      } else {
+        btn.classList.add("wrong");
+        feedback.textContent = "Bijna. De goeie stond groen.";
+        feedback.style.color = "#b42318";
+      }
+
+      updatePills();
+      nextBtn.disabled = false;
+    }
+
+    function handleTimeout() {
+      answered = true;
+      const q = questions[index];
+      const buttons = document.querySelectorAll(".answer-btn");
+
+      if (currentMode === "math") {
+        buttons.forEach(b => {
+          if (Number(b.textContent) === q.correctValue) b.classList.add("correct");
+        });
+      } else {
+        buttons[q.correct].classList.add("correct");
+      }
+
+      feedback.textContent = "Tijd om. Probeer de volgende iets sneller.";
+      feedback.style.color = "#b45309";
+      nextBtn.disabled = false;
+    }
+
+    function nextQuestion() {
+      index++;
+      if (index >= questions.length) {
+        showResult();
+        return;
+      }
+      showQuestion();
+    }
+
+    function showResult() {
+      clearInterval(timerId);
+      gameView.classList.add("hidden");
+      resultView.classList.remove("hidden");
+      progressBar.style.width = "100%";
+
+      let levelText = "";
+      let tipText = "";
+
+      if (score <= 4) {
+        levelText = "Je bent goed bezig. We oefenen rustig verder.";
+        tipText = "Tip: doe morgen nog een ronde van hetzelfde onderdeel. Korte oefening werkt het best.";
+      } else if (score <= 7) {
+        levelText = "Netjes. Je zit al lekker op weg.";
+        tipText = "Tip: probeer de volgende ronde nóg sneller te antwoorden zonder te gokken.";
+      } else if (score <= 9) {
+        levelText = "Super gedaan. Jij bent echt scherp.";
+        tipText = "Tip: wissel morgen af met een ander onderdeel voor extra groei.";
+      } else {
+        levelText = "Wauw, 10 uit 10. Mega knap!";
+        tipText = "Tip: tijd voor de volgende uitdaging. Probeer nu ook een ander onderdeel.";
+      }
+
+      resultText.textContent = `Score: ${score} van de 10. ${levelText}`;
+      resultTip.textContent = tipText;
+      updatePills();
+    }
+
+    function restartSameMode() {
+      startGame(currentMode);
+    }
+
+    function backToMenu() {
+      clearInterval(timerId);
+      menuView.classList.remove("hidden");
+      gameView.classList.add("hidden");
+      resultView.classList.add("hidden");
+      roundPill.textContent = "Vraag: 0/10";
+      modePill.textContent = "Onderdeel: -";
+    }
+
+    function updatePills() {
+      scorePill.textContent = `Score: ${score}`;
+      roundPill.textContent = `Vraag: ${index + 1 > 10 ? 10 : index + 1}/10`;
+    }
+  </script>
 </body>
 </html>
