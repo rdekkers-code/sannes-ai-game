@@ -1,679 +1,1494 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sanne AI Game</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #eef7ff 0%, #ffffff 100%);
-      color: #1f2a44;
-    }
-    .container {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .hero {
-      background: white;
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      margin-bottom: 20px;
-    }
-    h1 {
-      margin: 0 0 10px 0;
-      font-size: 2rem;
-    }
-    .sub {
-      margin: 0;
-      font-size: 1.05rem;
-      line-height: 1.5;
-    }
-    .stats {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 18px;
-    }
-    .pill {
-      background: #e8f2ff;
-      border-radius: 999px;
-      padding: 10px 14px;
-      font-weight: bold;
-    }
-    .menu, .game, .result {
-      background: white;
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    }
-    .hidden {
-      display: none;
-    }
-    .button-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-top: 20px;
-    }
-    button {
-      border: none;
-      border-radius: 16px;
-      padding: 16px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.15s ease;
-    }
-    button:hover {
-      transform: translateY(-2px);
-    }
-    .mode-btn {
-      background: #dff3e7;
-      color: #164b2f;
-    }
-    .primary {
-      background: #3b82f6;
-      color: white;
-    }
-    .secondary {
-      background: #eef2ff;
-      color: #243b74;
-    }
-    .answers {
-      display: grid;
-      gap: 12px;
-      margin-top: 20px;
-    }
-    .answer-btn {
-      background: #f7f9fc;
-      border: 2px solid transparent;
-      text-align: left;
-    }
-    .answer-btn.correct {
-      border-color: #28a745;
-      background: #eaf9ef;
-    }
-    .answer-btn.wrong {
-      border-color: #dc3545;
-      background: #fdecec;
-    }
-    .question-box {
-      margin-top: 20px;
-      padding: 20px;
-      border-radius: 16px;
-      background: #f8fbff;
-    }
-    .question {
-      font-size: 1.5rem;
-      font-weight: bold;
-      line-height: 1.4;
-    }
-    .small {
-      margin-top: 12px;
-      color: #5b6780;
-    }
-    .feedback {
-      margin-top: 16px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      min-height: 28px;
-    }
-    .controls {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-    .progress-wrap {
-      margin-top: 18px;
-    }
-    .progress {
-      width: 100%;
-      height: 14px;
-      background: #e8eef8;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .bar {
-      height: 100%;
-      width: 0%;
-      background: #3b82f6;
-      transition: width 0.3s ease;
-    }
-    .result h2 {
-      margin-top: 0;
-    }
-    .tip-box {
-      margin-top: 18px;
-      padding: 16px;
-      border-radius: 14px;
-      background: #fff8e8;
-      color: #6b5200;
-      line-height: 1.5;
-    }
-    .timer {
-      font-size: 1.1rem;
-      font-weight: bold;
-      margin-top: 10px;
-      color: #9a3412;
-    }
-    @media (max-width: 640px) {
-      .question {
-        font-size: 1.25rem;
-      }
-      h1 {
-        font-size: 1.6rem;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sanne AI Game — Toets & Adaptief oefenen</title>
+<style>
+:root{
+  --bg:#0b1220; --panel:#101b33; --text:#eef2ff; --muted:#b9c2da;
+  --accent:#7dd3fc; --good:#34d399; --bad:#fb7185; --warn:#fbbf24; --focus:#fde047;
+  --r:16px; --tap:44px; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);
+  background: radial-gradient(1000px 700px at 20% 0%, #162547 0%, var(--bg) 60%); line-height:1.4}
+a{color:var(--accent)}
+header{position:sticky;top:0;z-index:10;background:rgba(11,18,32,.85);backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.wrap{max-width:980px;margin:0 auto;padding:12px 12px}
+h1{margin:0;font-size:1.05rem}
+.sub{color:var(--muted);font-size:.92rem;margin-top:2px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{min-height:var(--tap);padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.18);color:var(--text);cursor:pointer;font-weight:800}
+button.primary{border-color:rgba(125,211,252,.55);background:rgba(125,211,252,.14)}
+button.good{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.14)}
+button.warn{border-color:rgba(251,191,36,.55);background:rgba(251,191,36,.14)}
+button.danger{border-color:rgba(251,113,133,.55);background:rgba(251,113,133,.14)}
+button:disabled{opacity:.55;cursor:not-allowed}
+main{max-width:980px;margin:0 auto;padding:14px 12px 40px}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:860px){.grid{grid-template-columns:1.1fr .9fr}}
+.card{background:rgba(16,27,51,.75);border:1px solid rgba(255,255,255,.10);border-radius:var(--r);padding:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:8px 10px;background:rgba(0,0,0,.18);font-size:.92rem}
+.pill strong{font-family:var(--mono)}
+.small{color:var(--muted);font-size:.92rem}
+.question{font-size:1.2rem;font-weight:900}
+.answers{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+@media(min-width:680px){.answers{grid-template-columns:1fr 1fr}}
+.answer{min-height:56px;text-align:left}
+.correct{outline:3px solid rgba(52,211,153,.75)}
+.wrong{outline:3px solid rgba(251,113,133,.75)}
+.feedback{min-height:24px;margin-top:10px;font-weight:900}
+.feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)} .feedback.warn{color:var(--warn)}
+input,select,textarea{width:100%;min-height:var(--tap);padding:10px 12px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);color:var(--text)}
+textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
+.progress{height:10px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:10px}
+.bar{height:100%;width:0%;background:rgba(125,211,252,.7);transition:width .2s ease}
+.passage{background:rgba(0,0,0,.20);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:12px;line-height:1.55}
+.keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.timer{font-family:var(--mono);font-weight:900}
+.timer.bad{color:var(--bad)} .timer.warn{color:var(--warn)} .timer.good{color:var(--good)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
 <body>
-  <div class="container">
-    <section class="hero">
-      <h1>🎮 Sanne AI Game</h1>
-      <p class="sub">
-        Oefenen op jouw niveau: rekenen, lezen en een beetje Engels.
-        Speciaal voor groep 6, met extra focus op snelheid.
-      </p>
-      <div class="stats">
-        <div class="pill" id="scorePill">Score: 0</div>
-        <div class="pill" id="roundPill">Vraag: 0/10</div>
-        <div class="pill" id="modePill">Onderdeel: -</div>
+<header>
+  <div class="wrap">
+    <h1>🎮 Sanne AI Game — Toets & Adaptief oefenen</h1>
+    <div class="sub">Groep 6 • rekenen (automatiseren), lezen (vloeiendheid + begrip), Engels (woordenschat)</div>
+    <nav aria-label="Menu">
+      <button data-view="home" class="primary">Start</button>
+      <button data-view="session">Sessie</button>
+      <button data-view="report">Rapport</button>
+      <button data-view="parent">Ouder</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section id="home" class="card">
+    <div class="grid">
+      <div class="card">
+        <div class="row">
+          <div class="pill">Profiel: <strong id="uiUser">Sanne</strong></div>
+          <div class="pill">Opslag: <strong id="uiStore">…</strong></div>
+          <div class="pill">Packs: <strong id="uiPacks">…</strong></div>
+        </div>
+        <p class="small" style="margin-top:10px">
+          Alles draait lokaal in de browser. Er is geen server. Je kunt altijd exporteren/importeren.
+        </p>
+
+        <div class="row" style="margin-top:10px">
+          <button id="btnPracticeMixed" class="good">🚀 Oefenen (dagmissie)</button>
+          <button id="btnTestMixed" class="primary">📝 Toets (benchmark)</button>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <button id="btnPracticeMath">➕ Oefenen rekenen</button>
+          <button id="btnPracticeRead">📖 Oefenen lezen</button>
+          <button id="btnPracticeEng">🇬🇧 Oefenen Engels</button>
+        </div>
+
+        <p class="small" style="margin-top:10px">
+          Tip: 10–15 минут kort oefenen voor automatiseren; lezen met herhaald lezen (instelbaar).
+        </p>
       </div>
-    </section>
 
-    <section class="menu" id="menuView">
-      <h2>Kies een onderdeel</h2>
-      <p>Korte rondes van 10 vragen. Lekker snel en speels oefenen.</p>
-
-      <div class="button-grid">
-        <button class="mode-btn" onclick="startGame('math')">➕ Rekenen snelheid</button>
-        <button class="mode-btn" onclick="startGame('reading')">📖 Lezen snelheid</button>
-        <button class="mode-btn" onclick="startGame('english')">🇬🇧 Engels basis</button>
+      <div class="card">
+        <h2 style="margin:0 0 6px 0;font-size:1.05rem">Snelle status</h2>
+        <div id="uiQuick" class="small">Nog geen sessies.</div>
+        <div class="progress" aria-label="Voortgang"><div id="uiProg" class="bar"></div></div>
+        <p class="small" style="margin-top:10px" id="uiHint">—</p>
       </div>
+    </div>
+  </section>
 
-      <div class="tip-box">
-        Beste aanpak: elke dag 10 minuten. Eerst rekenen, dan lezen, dan Engels.
+  <section id="session" class="card" hidden>
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <div class="pill">Mode: <strong id="uiMode">-</strong></div>
+        <div class="pill">Domein: <strong id="uiDom">-</strong></div>
+        <div class="pill">Stap: <strong id="uiStep">0/0</strong></div>
       </div>
-    </section>
+      <div class="pill">Timer: <span id="uiTimer" class="timer">--</span></div>
+    </div>
 
-    <section class="game hidden" id="gameView">
-      <h2 id="gameTitle">Oefenen</h2>
-      <div class="timer" id="timerLine">Tijd: 10</div>
+    <div class="progress"><div id="uiBar" class="bar"></div></div>
 
-      <div class="progress-wrap">
-        <div class="progress">
-          <div class="bar" id="progressBar"></div>
+    <div style="margin-top:12px">
+      <div id="uiPrompt"></div>
+      <div id="uiAnswer"></div>
+      <div id="uiFb" class="feedback" aria-live="polite"></div>
+    </div>
+
+    <div class="row" style="margin-top:12px;justify-content:space-between">
+      <button id="btnQuit">← Stoppen</button>
+      <div class="row">
+        <button id="btnSkip">Overslaan</button>
+        <button id="btnNext" class="primary" disabled>Volgende →</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <div class="grid">
+      <div class="card">
+        <h2 style="margin:0 0 6px 0;font-size:1.05rem">Laatste sessie</h2>
+        <div id="uiLast" class="small">Nog geen sessie.</div>
+        <div class="row" style="margin-top:10px">
+          <button id="btnAgain" class="primary">Nog een sessie</button>
+          <button id="btnHome">Terug</button>
         </div>
       </div>
+      <div class="card">
+        <h2 style="margin:0 0 6px 0;font-size:1.05rem">Geschiedenis</h2>
+        <div id="uiHist" class="small">—</div>
+      </div>
+    </div>
+  </section>
 
-      <div class="question-box">
-        <div class="question" id="questionText">Vraag komt hier</div>
-        <div class="small" id="questionExtra"></div>
-        <div class="answers" id="answers"></div>
-        <div class="feedback" id="feedback"></div>
+  <section id="parent" class="card" hidden>
+    <div class="grid">
+      <div class="card">
+        <h2 style="margin:0 0 6px 0;font-size:1.05rem">Ouderinstellingen</h2>
+        <p class="small">Instellingen gelden per apparaat. Exporteer voor backups.</p>
+
+        <h3 style="margin:10px 0 6px 0;font-size:1rem">Profielen</h3>
+        <label>Actief profiel</label>
+        <select id="selUser"></select>
+        <label style="margin-top:10px">Nieuw profiel</label>
+        <div class="row">
+          <div style="flex:1;min-width:200px"><input id="newUser" placeholder="Naam, bv. Bente"></div>
+          <div><button id="btnAddUser">Toevoegen</button></div>
+        </div>
+
+        <h3 style="margin:12px 0 6px 0;font-size:1rem">Oefenen</h3>
+        <label>Rekenen: aantal vragen</label><input id="setMathN" type="number" min="5" max="60">
+        <label>Engels: aantal vragen</label><input id="setEngN" type="number" min="5" max="60">
+        <label>Lezen: herhaald lezen (1–4)</label><input id="setReadRep" type="number" min="1" max="4">
+
+        <h3 style="margin:12px 0 6px 0;font-size:1rem">Timers</h3>
+        <label>Rekenen sec/vraag</label><input id="setMathSec" type="number" min="5" max="25">
+        <label>Engels sec/vraag</label><input id="setEngSec" type="number" min="6" max="30">
+        <label>Engels: deel “due” (0–1)</label><input id="setDueFrac" type="number" min="0" max="1" step="0.05">
+
+        <h3 style="margin:12px 0 6px 0;font-size:1rem">Toets</h3>
+        <label>Toets beïnvloedt SRS</label>
+        <select id="setTestAffects">
+          <option value="no" selected>Nee (benchmark blijft zuiver)</option>
+          <option value="yes">Ja</option>
+        </select>
+
+        <div class="row" style="margin-top:10px">
+          <button id="btnSave" class="primary">Opslaan</button>
+          <button id="btnReset">Reset</button>
+        </div>
+
+        <h3 style="margin:12px 0 6px 0;font-size:1rem">Export / Import</h3>
+        <div class="row">
+          <button id="btnExport" class="good">⬇ Export JSON</button>
+          <label for="fileImport" style="display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);
+            padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);cursor:pointer;font-weight:800">
+            ⬆ Import JSON
+          </label>
+          <input id="fileImport" type="file" accept="application/json" hidden>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <button id="btnWipe" class="danger">Alles wissen</button>
+        </div>
+
+        <p id="uiParentMsg" class="small" style="margin-top:10px">—</p>
       </div>
 
-      <div class="controls">
-        <button class="secondary" onclick="backToMenu()">← Terug</button>
-        <button class="primary" id="nextBtn" onclick="nextQuestion()" disabled>Volgende vraag</button>
+      <div class="card">
+        <h2 style="margin:0 0 6px 0;font-size:1.05rem">Diagnose</h2>
+        <div id="uiDbg" class="small">Laden…</div>
+
+        <h3 style="margin:12px 0 6px 0;font-size:1rem">SRS top (due/zwak)</h3>
+        <div id="uiSrsTop" class="small">—</div>
+
+        <h3 style="margin:12px 0 6px 0;font-size:1rem">Voorbeeld export</h3>
+        <textarea id="uiSampleExport" readonly></textarea>
       </div>
-    </section>
+    </div>
+  </section>
+</main>
 
-    <section class="result hidden" id="resultView">
-      <h2>Goed gedaan, Sanne!</h2>
-      <p id="resultText"></p>
-      <div class="tip-box" id="resultTip"></div>
-      <div class="controls">
-        <button class="primary" onclick="restartSameMode()">Nog een ronde</button>
-        <button class="secondary" onclick="backToMenu()">Kies iets anders</button>
-      </div>
-    </section>
-  </div>
+<script>
+(() => {
+  "use strict";
 
-  <script>
-    const readingQuestions = [
-      {
-        question: "Lees: 'De kat zit op de mat.' Welk woord rijmt op kat?",
-        extra: "",
-        answers: ["pet", "lat", "boom", "jas"],
-        correct: 1
-      },
-      {
-        question: "Lees: 'Jan loopt snel naar school.' Wie loopt naar school?",
-        extra: "",
-        answers: ["Piet", "Jan", "De juf", "Niemand"],
-        correct: 1
-      },
-      {
-        question: "Lees: 'De bal is rood.' Welke kleur heeft de bal?",
-        extra: "",
-        answers: ["Blauw", "Geel", "Rood", "Groen"],
-        correct: 2
-      },
-      {
-        question: "Welk woord lees je het snelst goed?",
-        extra: "",
-        answers: ["bibliotheek", "huis", "verkeersregel", "onbegrijpelijk"],
-        correct: 1
-      },
-      {
-        question: "Lees: 'Mila eet een appel in de tuin.' Wat eet Mila?",
-        extra: "",
-        answers: ["Een peer", "Een appel", "Een banaan", "Een koek"],
-        correct: 1
-      },
-      {
-        question: "Welk woord hoort bij lezen?",
-        extra: "",
-        answers: ["boek", "fiets", "bal", "jas"],
-        correct: 0
-      },
-      {
-        question: "Lees: 'De vogel vliegt hoog.' Wat doet de vogel?",
-        extra: "",
-        answers: ["Zwemt", "Rent", "Vliegt", "Slaapt"],
-        correct: 2
-      },
-      {
-        question: "Welk woord is het kortst?",
-        extra: "",
-        answers: ["boom", "ik", "school", "regenjas"],
-        correct: 1
-      },
-      {
-        question: "Lees: 'Sara pakt haar tas en gaat weg.' Wat pakt Sara?",
-        extra: "",
-        answers: ["Haar tas", "Een stoel", "Een boek", "Een appel"],
-        correct: 0
-      },
-      {
-        question: "Welk woord begint met dezelfde klank als 'maan'?",
-        extra: "",
-        answers: ["mes", "roos", "vis", "tak"],
-        correct: 0
-      },
-      {
-        question: "Lees: 'Het kind tekent een huis.' Wat tekent het kind?",
-        extra: "",
-        answers: ["Een boom", "Een auto", "Een huis", "Een vis"],
-        correct: 2
-      },
-      {
-        question: "Welk woord kun je in stukjes hakken als: speel-goed?",
-        extra: "",
-        answers: ["speelgoed", "tafel", "snel", "boek"],
-        correct: 0
-      }
-    ];
+  // ============================================================
+  // MODULES (single-file)
+  // - Storage: IndexedDB wrapper + fallback localStorage
+  // - ContentPacks: 50 math variants (generated), 20 reading templates + 30 variants, 50 English items
+  // - SRS/Leitner: box+due scheduling + mastery
+  // - Anti-repeat: recent lists per domain
+  // - SessionEngine: practice/test, timers, reading WPM
+  // - Reports: last session + history + due list
+  // ============================================================
+  //
+  // PSEUDOCODE selectie (anti-repeat + due)
+  // pick(domain):
+  //   pool = allItems(domain) minus recent(domain)
+  //   due = pool where srs.seen==0 OR srs.due<=now
+  //   if mode==test: random from pool (no weighting)
+  //   else: pick weighted (due heavier; low accuracy heavier; low box heavier)
+  //
+  // updateSRS(ok, fast):
+  //   if !ok: box=1; due=now+6h
+  //   else: if box==0 box=1; if fast box++ (max 5); due=now+interval[box]
+  //
+  // Reading grade:
+  //   ok = comprehension >= 75%
+  //   fast = bestWPM >= targetWPM
+  // ============================================================
 
-    const englishQuestions = [
-      {
-        question: "Wat betekent 'dog'?",
-        extra: "",
-        answers: ["Hond", "Kat", "Vogel", "Vis"],
-        correct: 0
-      },
-      {
-        question: "Wat betekent 'book'?",
-        extra: "",
-        answers: ["Bal", "Boek", "Bed", "Brood"],
-        correct: 1
-      },
-      {
-        question: "Wat betekent 'red'?",
-        extra: "",
-        answers: ["Rood", "Groen", "Blauw", "Geel"],
-        correct: 0
-      },
-      {
-        question: "Wat betekent 'school'?",
-        extra: "",
-        answers: ["Tuin", "School", "Huis", "Stoel"],
-        correct: 1
-      },
-      {
-        question: "Wat betekent 'apple'?",
-        extra: "",
-        answers: ["Appel", "Peer", "Banaan", "Druif"],
-        correct: 0
-      },
-      {
-        question: "Hoe zeg je 'huis' in het Engels?",
-        extra: "",
-        answers: ["mouse", "house", "horse", "hand"],
-        correct: 1
-      },
-      {
-        question: "Hoe zeg je 'bedankt' in het Engels?",
-        extra: "",
-        answers: ["Please", "Sorry", "Thank you", "Hello"],
-        correct: 2
-      },
-      {
-        question: "Wat betekent 'cat'?",
-        extra: "",
-        answers: ["Kat", "Hond", "Koe", "Geit"],
-        correct: 0
-      },
-      {
-        question: "Hoe zeg je 'blauw' in het Engels?",
-        extra: "",
-        answers: ["Blue", "Black", "Brown", "Pink"],
-        correct: 0
-      },
-      {
-        question: "Wat betekent 'hello'?",
-        extra: "",
-        answers: ["Dag / hallo", "Tot morgen", "Eet smakelijk", "Kom hier"],
-        correct: 0
-      },
-      {
-        question: "Hoe zeg je 'één' in het Engels?",
-        extra: "",
-        answers: ["Two", "One", "Three", "Ten"],
-        correct: 1
-      },
-      {
-        question: "Wat betekent 'teacher'?",
-        extra: "",
-        answers: ["Bakker", "Brandweer", "Juf / meester", "Dokter"],
-        correct: 2
-      }
-    ];
+  const APPV = 1;
+  const KEY = "sanne-ai-game-state";
 
-    function makeMathQuestion() {
-      const type = Math.floor(Math.random() * 4);
+  // Leitner box intervals (days)
+  const LEITNER = [0, 1, 3, 7, 14, 30].map(d => d*24*60*60*1000);
+  const FAIL_MS = 6*60*60*1000;
 
-      if (type === 0) {
-        const a = rand(2, 10);
-        const b = rand(2, 10);
-        return {
-          question: `${a} × ${b} = ?`,
-          extra: "Rekenen op snelheid",
-          answers: shuffle([
-            a * b,
-            a * b + rand(1, 4),
-            a * b - rand(1, 3),
-            a * b + rand(5, 8)
-          ]),
-          correctValue: a * b
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => Array.from(document.querySelectorAll(s));
+  const now = () => Date.now();
+  const clamp = (n,a,b) => Math.max(a, Math.min(b, n));
+  const median = (arr) => {
+    const a = arr.slice().filter(x=>typeof x==="number").sort((x,y)=>x-y);
+    if(!a.length) return null;
+    const m = Math.floor(a.length/2);
+    return a.length%2 ? a[m] : (a[m-1]+a[m])/2;
+  };
+  const words = (t) => String(t||"").trim().split(/\s+/).filter(Boolean).length;
+  const norm = (s) => String(s||"").trim().toLowerCase().replace(/\s+/g,"");
+  const esc = (s) => String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const shuffle = (a) => {
+    a = a.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  };
+  const uid = () => (crypto?.randomUUID ? crypto.randomUUID() : String(now())+"-"+Math.random().toString(16).slice(2));
+
+  // ---------- Storage (IndexedDB, fallback localStorage) ----------
+  // IndexedDB is meant for larger structured data; Web Storage is synchronous and string-only.
+  const Store = (() => {
+    const DB="sanne-ai-db", VER=1, OS="kv";
+    let kind="localStorage", db=null;
+
+    function openIDB(){
+      return new Promise((res, rej) => {
+        if(!("indexedDB" in window)) return rej(new Error("no indexedDB"));
+        const req = indexedDB.open(DB, VER);
+        req.onupgradeneeded = () => {
+          const d = req.result;
+          if(!d.objectStoreNames.contains(OS)) d.createObjectStore(OS, { keyPath:"k" });
         };
-      }
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error || new Error("idb open error"));
+      });
+    }
+    function tx(mode){ return db.transaction(OS, mode).objectStore(OS); }
 
-      if (type === 1) {
-        const a = rand(10, 80);
-        const b = rand(10, 20);
-        return {
-          question: `${a} + ${b} = ?`,
-          extra: "Plus som",
-          answers: shuffle([
-            a + b,
-            a + b + rand(1, 6),
-            a + b - rand(1, 5),
-            a + b + rand(7, 10)
-          ]),
-          correctValue: a + b
-        };
+    async function init(){
+      try{ db = await openIDB(); kind="indexeddb"; }
+      catch(e){ kind="localStorage"; }
+      return kind;
+    }
+    async function get(){
+      if(kind==="indexeddb"){
+        return await new Promise((res, rej) => {
+          const r = tx("readonly").get(KEY);
+          r.onsuccess = () => res(r.result ? r.result.v : null);
+          r.onerror = () => rej(r.error);
+        });
       }
-
-      if (type === 2) {
-        const a = rand(20, 90);
-        const b = rand(2, 18);
-        return {
-          question: `${a} - ${b} = ?`,
-          extra: "Min som",
-          answers: shuffle([
-            a - b,
-            a - b + rand(1, 5),
-            a - b - rand(1, 4),
-            a - b + rand(6, 9)
-          ]),
-          correctValue: a - b
-        };
+      const raw = localStorage.getItem(KEY);
+      return raw ? JSON.parse(raw) : null;
+    }
+    async function set(v){
+      if(kind==="indexeddb"){
+        return await new Promise((res, rej) => {
+          const r = tx("readwrite").put({ k:KEY, v });
+          r.onsuccess = () => res(true);
+          r.onerror = () => rej(r.error);
+        });
       }
+      localStorage.setItem(KEY, JSON.stringify(v));
+    }
+    async function clear(){
+      if(kind==="indexeddb"){
+        return await new Promise((res, rej) => {
+          const r = tx("readwrite").delete(KEY);
+          r.onsuccess = () => res(true);
+          r.onerror = () => rej(r.error);
+        });
+      }
+      localStorage.removeItem(KEY);
+    }
+    return { init, get, set, clear, get kind(){ return kind; } };
+  })();
 
-      const table = rand(2, 10);
-      const answer = rand(2, 10);
+  // ---------- Default settings ----------
+  const DEFAULT_SETTINGS = {
+    practice: { mathN: 20, engN: 12, readRep: 2, readN: 1 },
+    timers: { mathSec: 10, engSec: 14 },
+    english: { dueFrac: 0.70 },
+    anti: { recentMax: 60 },
+    test: { affectsSrs: false }
+  };
+
+  // ---------- State ----------
+  function blankState(){
+    const t = now();
+    return {
+      v: APPV,
+      createdAt: t,
+      users: { sanne: { id:"sanne", name:"Sanne", createdAt: t } },
+      active: "sanne",
+      settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
+      data: { sanne: { srs:{}, recent:{ math:[], reading:[], english:[] }, sessions:[] } }
+    };
+  }
+  function ensureUser(st, id){
+    if(!st.data[id]) st.data[id] = { srs:{}, recent:{ math:[], reading:[], english:[] }, sessions:[] };
+  }
+
+  // ---------- SRS / anti-repeat ----------
+  const kItem = (domain, id) => domain+":"+id;
+  const kMathSkill = (skillId) => "mathSkill:"+skillId;
+
+  function srsGet(ud, key){
+    if(!ud.srs[key]) ud.srs[key] = { box:0, due:0, seen:0, correct:0, streak:0, avgRt:null, last:0 };
+    return ud.srs[key];
+  }
+  function srsUpdate(ud, key, ok, fast, affects=true, rtMs=null){
+    const r = srsGet(ud, key);
+    r.seen++; r.last = now();
+    if(ok) r.correct++;
+    if(rtMs!=null){
+      r.avgRt = (r.avgRt==null) ? rtMs : Math.round(r.avgRt*0.8 + rtMs*0.2);
+    }
+    if(!affects) return;
+
+    if(!ok){
+      r.box = 1;
+      r.streak = 0;
+      r.due = now() + FAIL_MS;
+      return;
+    }
+    if(r.box===0) r.box = 1;
+    if(fast) r.box = clamp(r.box+1, 1, 5);
+    r.streak = clamp(r.streak+1, 0, 50);
+    r.due = now() + LEITNER[r.box];
+  }
+  function recentAdd(ud, domain, id, max){
+    const a = ud.recent[domain] || [];
+    ud.recent[domain] = [id, ...a.filter(x=>x!==id)].slice(0, max);
+  }
+  function isRecent(ud, domain, id){ return (ud.recent[domain]||[]).includes(id); }
+  function mastery(box){ return box>=4 ? "mastered" : (box>=2 ? "review" : "learning"); }
+
+  // ---------- Weighted pick ----------
+  function weightedPick(items, weights){
+    const total = weights.reduce((s,w)=>s+w,0);
+    let r = Math.random()*total;
+    for(let i=0;i<items.length;i++){
+      r -= weights[i];
+      if(r<=0) return items[i];
+    }
+    return items[items.length-1];
+  }
+
+  // ============================================================
+  // CONTENT PACKS (embedded)
+  // ============================================================
+
+  // ---- English: 25 pairs => 50 items (MCQ + typed) ----
+  const ENG_PAIRS = [
+    ["dog","hond"],["cat","kat"],["bird","vogel"],["fish","vis"],["horse","paard"],
+    ["book","boek"],["pen","pen"],["pencil","potlood"],["bag","tas"],["teacher","juf/meester"],
+    ["school","school"],["desk","bureau"],["chair","stoel"],["red","rood"],["blue","blauw"],
+    ["green","groen"],["yellow","geel"],["black","zwart"],["white","wit"],["one","één"],
+    ["two","twee"],["three","drie"],["four","vier"],["five","vijf"],["friday","vrijdag"]
+  ];
+
+  function buildEnglishItems(){
+    const nls = ENG_PAIRS.map(p=>p[1]);
+    const items = [];
+    for(const [en,nl] of ENG_PAIRS){
+      // MCQ: en -> nl (4 options)
+      const distract = shuffle(nls.filter(x=>x!==nl)).slice(0,3);
+      const opts = shuffle([nl, ...distract]);
+      const choices = opts.map((t,i)=>({ id:String.fromCharCode(65+i), text:t }));
+      const correctId = choices.find(c=>c.text===nl).id;
+      items.push({
+        id:`e.mcq.${en}`, domain:"english", skill:"english.vocab", level:1, format:"mcq",
+        prompt:{ text:`${en} = ?` },
+        choices, answer:{ type:"choice", value:correctId },
+        metrics:{ timeLimitSec:14, targetSec:10 }
+      });
+      // Typed: nl -> en
+      items.push({
+        id:`e.type.${nl.replace(/[^a-z0-9]+/gi,"_").toLowerCase()}`,
+        domain:"english", skill:"english.spelling", level:2, format:"typed",
+        prompt:{ text:`Schrijf het Engelse woord voor "${nl}".` },
+        answer:{ type:"text", value:en },
+        metrics:{ timeLimitSec:14, targetSec:12 }
+      });
+    }
+    return items; // 50
+  }
+
+  // ---- Reading: 20 templates + 30 variants => 50 passages ----
+  const READ_TEMPLATES = [
+    { id:"r.t01", level:1, targetWpm:110,
+      vars:{ NAME:["Sanne","Noor","Amir"], PLACE:["school","de bibliotheek"], OBJ:["muts","tas"] },
+      text:"{NAME} ziet bij {PLACE} een {OBJ} liggen. Ze twijfelt even. Dan vraagt ze of ze het mag pakken. In de {OBJ} zit een briefje met een naam. {NAME} ontdekt dat het niet van haar is en legt het terug. Later vertelt ze thuis wat er gebeurde.",
+      questions:[
+        { id:"q1", prompt:"Waar ligt de {OBJ}?", choices:["Bij {PLACE}","In het bos","In de keuken","In de bus"], correctIndex:0 },
+        { id:"q2", prompt:"Waarom legt {NAME} het terug?", choices:["Het is kapot","Het is niet van haar","Het is te zwaar","Het is nat"], correctIndex:1 }
+      ]
+    },
+    { id:"r.t02", level:1, targetWpm:110,
+      vars:{ NAME:["Sanne","Mila","Jesse"], VEH:["fiets","step"], PLACE:["school","het park"] },
+      text:"{NAME} maakt haar {VEH} klaar. Ze pompt de banden op en test de rem. Daarna kijkt ze of het licht werkt. Morgen gaat ze naar {PLACE}. Ze wil veilig zijn, dus ze controleert alles rustig. Als alles klopt, rinkelt ze met de bel en glimlacht.",
+      questions:[
+        { id:"q1", prompt:"Wat test {NAME} aan de {VEH}?", choices:["De rem","De televisie","De deur","De jas"], correctIndex:0 },
+        { id:"q2", prompt:"Waarom controleert {NAME} alles?", choices:["Om te winnen","Om veilig te zijn","Om sneller te slapen","Om luid te zijn"], correctIndex:1 }
+      ]
+    },
+    { id:"r.t03", level:1, targetWpm:105,
+      vars:{ NAME:["Amir","Lina","Noor"], WEATHER:["regen","wind","mist"], CLOTH:["jas","trui"] },
+      text:"De weerapp zegt {WEATHER}. {NAME} twijfelt wat hij aantrekt. Hij kiest een {CLOTH} en stopt een extra shirt in zijn tas. Buiten blijkt dat slim: het voelt kouder dan verwacht. Een vriend zegt: “Goed dat je eraan dacht.” {NAME} knikt tevreden.",
+      questions:[
+        { id:"q1", prompt:"Wat voorspelt de weerapp?", choices:["{WEATHER}","Sneeuw","Hitte","Onweer"], correctIndex:0 },
+        { id:"q2", prompt:"Waarom was het slim om extra kleding mee te nemen?", choices:["Omdat hij ging zwemmen","Omdat het kouder voelde","Omdat hij ging koken","Omdat hij een boek zocht"], correctIndex:1 }
+      ]
+    },
+    { id:"r.t04", level:1, targetWpm:105,
+      vars:{ NAME:["Sanne","Noor","Tessa"], FOOD:["cake","pannenkoeken"], PLACE:["keuken","klas"] },
+      text:"{NAME} wil {FOOD} maken. Ze leest het recept en weegt de bloem. Daarna breekt ze eieren in een kom. Ze roert rustig totdat het glad is. Het beslag is nog rauw, dus proeven hoeft niet. Als alles klaar is, ruikt de {PLACE} heerlijk.",
+      questions:[
+        { id:"q1", prompt:"Wat maakt {NAME}?", choices:["{FOOD}","Een fiets","Een tekening","Een toren"], correctIndex:0 },
+        { id:"q2", prompt:"Waarom hoeft {NAME} het beslag niet te proeven?", choices:["Omdat het rauw is","Omdat het koud is","Omdat het vies is","Omdat het te duur is"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t05", level:2, targetWpm:115,
+      vars:{ NAME:["Sam","Jesse","Amir"], PLACE:["het bos","het park"], ANIMAL:["specht","vogel"] },
+      text:"Tijdens een wandeling in {PLACE} hoort {NAME} getik. Het is een {ANIMAL}. {NAME} blijft stil staan om goed te luisteren. Daarna maakt hij een foto. Thuis vertelt hij wat hij zag en welke boom het was. Hij gebruikt woorden als “ritme” en “hard tikken”.",
+      questions:[
+        { id:"q1", prompt:"Welk dier hoort {NAME}?", choices:["Een {ANIMAL}","Een vis","Een koe","Een kat"], correctIndex:0 },
+        { id:"q2", prompt:"Waarom is {NAME} stil?", choices:["Om te luisteren","Om te slapen","Om te rennen","Om te eten"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t06", level:2, targetWpm:115,
+      vars:{ NAME:["Sanne","Noor","Mila"], PLACE:["de markt","de winkel"], ITEM:["appels","bananen"], MONEY:["10","5"] },
+      text:"{NAME} gaat naar {PLACE}. Ze koopt {ITEM}. Bij de kassa betaalt ze met {MONEY} euro. Ze krijgt wisselgeld terug en telt het na. Dan stopt ze het in haar portemonnee. Buiten zegt iemand: “Goed dat je controleerde.” {NAME} voelt zich zeker.",
+      questions:[
+        { id:"q1", prompt:"Waar koopt {NAME} {ITEM}?", choices:["Bij {PLACE}","In de sporthal","In het bos","In de trein"], correctIndex:0 },
+        { id:"q2", prompt:"Wat doet {NAME} met wisselgeld?", choices:["Ze telt het na","Ze gooit het weg","Ze vergeet het","Ze verft het"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t07", level:2, targetWpm:115,
+      vars:{ NAME:["Amir","Sanne","Jesse"], EVENT:["sportdag","gymles"], DRINK:["water","thee"] },
+      text:"Op de {EVENT} is het warm. {NAME} neemt een fles {DRINK} mee. De juf zegt dat iedereen vaak moet drinken. {NAME} start pas als het fluitsignaal klinkt. Daarna loopt hij rustig uit. Zo wordt hij niet duizelig en kan hij later nog een spel doen.",
+      questions:[
+        { id:"q1", prompt:"Wat zegt de juf?", choices:["Vaak drinken","Niet bewegen","Niet praten","Niet kijken"], correctIndex:0 },
+        { id:"q2", prompt:"Waarom loopt {NAME} rustig uit?", choices:["Om niet duizelig te worden","Om te verdwalen","Om sneller te lezen","Om te eten"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t08", level:1, targetWpm:105,
+      vars:{ NAME:["Sanne","Noor","Lina"], PLACE:["de bibliotheek","de klas"], TOPIC:["ruimte","dieren"] },
+      text:"{NAME} zoekt bij {PLACE} een boek over {TOPIC}. Ze kijkt eerst in de juiste kast. Daarna vraagt ze hulp. Ze vindt een boek met een mooie voorkant en leest de achterkant. Dan besluit ze het mee te nemen en zet ze het voorzichtig in haar tas.",
+      questions:[
+        { id:"q1", prompt:"Waar zoekt {NAME} een boek?", choices:["Bij {PLACE}","In een bus","In de zee","In een tent"], correctIndex:0 },
+        { id:"q2", prompt:"Waar gaat het boek over?", choices:["{TOPIC}","Voetbal","Koken","Computerspel"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t09", level:2, targetWpm:115,
+      vars:{ NAME:["Jesse","Sam","Sanne"], ITEM:["vogel","vliegtuig"], STEP:["vouwen","knippen"] },
+      text:"In de knutselhoek maakt {NAME} een {ITEM} van papier. Op het kaartje staan stappen. Eerst moet je {STEP}. {NAME} wil snel beginnen, maar leest eerst alles. Daarna gaat het beter en maakt hij minder fouten. Aan het eind hangt hij zijn werk op.",
+      questions:[
+        { id:"q1", prompt:"Wat maakt {NAME}?", choices:["Een {ITEM}","Een pannenkoek","Een fiets","Een kast"], correctIndex:0 },
+        { id:"q2", prompt:"Wat doet {NAME} voordat hij verder gaat?", choices:["Hij leest eerst alles","Hij gooit papier weg","Hij slaapt","Hij rent weg"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t10", level:2, targetWpm:115,
+      vars:{ NAME:["Sanne","Noor","Amir"], NIGHT:["’s nachts","in de avond"], AN1:["egel","uil"], AN2:["vleermuis","vos"] },
+      text:"Sommige dieren zijn vooral {NIGHT} actief. {NAME} leest over een {AN1} die dan voedsel zoekt. Overdag slaapt het dier vaak. Ook een {AN2} kan goed bewegen als het donker is. {NAME} schrijft op dat “donker” niet hetzelfde is als “gevaarlijk”.",
+      questions:[
+        { id:"q1", prompt:"Wanneer zijn sommige dieren actief?", choices:["{NIGHT}","Alleen ’s middags","Alleen op school","Nooit"], correctIndex:0 },
+        { id:"q2", prompt:"Waarom slaapt het dier overdag vaak?", choices:["Dan wordt het minder snel gezien","Dan is het donkerder","Dan kan het sneller eten","Dan is het warmer"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t11", level:2, targetWpm:115,
+      vars:{ NAME:["Amir","Sanne","Noor"], PLACE:["het zwembad","de sporthal"], RULE:["rennen","duiken"] },
+      text:"Bij {PLACE} hangt een bord met regels. {NAME} leest dat {RULE} niet overal mag. Hij houdt zich eraan en waarschuwt een vriend die te hard gaat. Daardoor blijft het veilig. Na afloop zegt de begeleider dat {NAME} goed oplettend was.",
+      questions:[
+        { id:"q1", prompt:"Waar hangt het bord?", choices:["Bij {PLACE}","In de koelkast","In de tuin","In de bus"], correctIndex:0 },
+        { id:"q2", prompt:"Wat doet {NAME} als iemand te hard gaat?", choices:["Hij waarschuwt","Hij juicht","Hij verstopt zich","Hij slaapt"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t12", level:1, targetWpm:105,
+      vars:{ NAME:["Mila","Sanne","Jesse"], TASK:["plaatjes zoeken","titel schrijven","oefenen"] },
+      text:"Voor een project verdeelt de klas taken. {NAME} gaat {TASK}. Ze spreken af om morgen alles samen te voegen. Als iemand klaar is, helpt die een ander. Zo wordt het een echt teamwerkstuk. Aan het eind controleren ze of alles netjes is en duidelijk leest.",
+      questions:[
+        { id:"q1", prompt:"Wat doen ze voor het project?", choices:["Taken verdelen","Sommen maken","Voetballen","Slapen"], correctIndex:0 },
+        { id:"q2", prompt:"Wanneer voegen ze alles samen?", choices:["Morgen","Gisteren","Nooit","Volgende maand"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t13", level:2, targetWpm:110,
+      vars:{ NAME:["Sanne","Noor","Amir"], MAP:["plattegrond","kaart"], NUM1:["12","21"], NUM2:["15","51"] },
+      text:"{NAME} krijgt een {MAP}. Ze zoekt huisje {NUM1}, maar loopt eerst naar {NUM2}. Dan ziet ze dat de cijfers andersom staan. Ze kijkt nog eens goed en vindt de juiste weg. Daarna zegt ze: “Ik moet beter op de volgorde letten.”",
+      questions:[
+        { id:"q1", prompt:"Wat krijgt {NAME}?", choices:["Een {MAP}","Een ballon","Een koek","Een fiets"], correctIndex:0 },
+        { id:"q2", prompt:"Wat gaat eerst fout?", choices:["{NAME} loopt naar {NUM2}","{NAME} vindt {NUM1} direct","{NAME} raakt nat","{NAME} vergeet te spreken"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t14", level:2, targetWpm:110,
+      vars:{ NAME:["Sanne","Noor","Lina"], TOP:["afval","papier"], HELP:["stickers","kleuren"] },
+      text:"Thuis helpt {NAME} met {TOP} scheiden. Papier bij papier, plastic bij plastic. Iemand maakt een fout, maar {NAME} legt rustig uit hoe het moet. Daarna gebruiken ze {HELP} om de bakken duidelijk te maken. Nu gaat het sneller en is er minder gedoe.",
+      questions:[
+        { id:"q1", prompt:"Waar helpt {NAME} mee?", choices:["Met {TOP} scheiden","Met zwemmen","Met dansen","Met tekenen"], correctIndex:0 },
+        { id:"q2", prompt:"Waarom gebruiken ze {HELP}?", choices:["Om het duidelijker te maken","Om het zwaarder te maken","Om het natter te maken","Om het stiller te maken"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t15", level:2, targetWpm:115,
+      vars:{ NAME:["Amir","Sanne","Jesse"], PLACE:["museum","tentoonstelling"], SCENE:["storm","zonlicht"] },
+      text:"In het {PLACE} ziet {NAME} een schilderij met een {SCENE}. De gids vertelt dat kleuren een gevoel kunnen geven. {NAME} vraagt waarom de lucht zo donker is. De gids legt uit dat er onweer aankomt. Daarna kijken ze naar een rustig schilderij met lichte kleuren.",
+      questions:[
+        { id:"q1", prompt:"Waar is {NAME}?", choices:["In het {PLACE}","In het bos","Op het dak","In de keuken"], correctIndex:0 },
+        { id:"q2", prompt:"Wat legt de gids uit?", choices:["Dat er onweer aankomt","Dat het altijd nacht is","Dat het sneeuwt","Dat het een film is"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t16", level:2, targetWpm:115,
+      vars:{ NAME:["Sanne","Noor","Amir"], DETOUR:["omleiding","andere route"], CHOICE:["langs het water","door de straat"] },
+      text:"{NAME} ziet een bordje: “{DETOUR}”. De brug is afgesloten. {NAME} kiest {CHOICE}, omdat het rustiger is. Onderweg ziet {NAME} vogels en blijft even kijken. Later zegt {NAME}: “Rustig lopen helpt me beter opletten.”",
+      questions:[
+        { id:"q1", prompt:"Wat betekent “{DETOUR}” hier?", choices:["Je moet een andere route nemen","Je moet stoppen met lopen","Je moet sneller rennen","Je moet terug naar huis"], correctIndex:0 },
+        { id:"q2", prompt:"Waarom kiest {NAME} {CHOICE}?", choices:["Omdat het rustiger is","Omdat het verboden is","Omdat het donker is","Omdat het nat is"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t17", level:1, targetWpm:105,
+      vars:{ NAME:["Sanne","Noor","Mila"], SNACK:["appel","peer"], PLACE:["keuken","tuin"] },
+      text:"In de {PLACE} maakt {NAME} een snack. Ze wast een {SNACK} en snijdt hem in stukjes. Daarna ruimt ze alles op. Zo blijft het netjes. Als iemand vraagt: “Mag ik ook?”, deelt {NAME} vriendelijk een stuk. Iedereen is blij.",
+      questions:[
+        { id:"q1", prompt:"Waar is {NAME}?", choices:["In de {PLACE}","In de bus","In het bos","In de klas"], correctIndex:0 },
+        { id:"q2", prompt:"Wat doet {NAME} na het snijden?", choices:["Opruimen","Weglopen","Schreeuwen","Verstoppen"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t18", level:1, targetWpm:105,
+      vars:{ NAME:["Amir","Sanne","Jesse"], OBJ:["ballon","bal"], COLOR:["rood","blauw"] },
+      text:"{NAME} vindt een {COLOR}e {OBJ} op het plein. Hij kijkt rond en ziet een kind zoeken. {NAME} vraagt: “Is dit van jou?” Het kind knikt en zegt dankjewel. {NAME} voelt zich trots, want hij helpt graag. Daarna spelen ze samen even rustig.",
+      questions:[
+        { id:"q1", prompt:"Wat vindt {NAME}?", choices:["Een {OBJ}","Een boek","Een fiets","Een sleutel"], correctIndex:0 },
+        { id:"q2", prompt:"Hoe reageert het kind?", choices:["Het zegt dankjewel","Het wordt boos","Het rent weg","Het huilt"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t19", level:2, targetWpm:110,
+      vars:{ NAME:["Sanne","Noor","Lina"], TALK:["spreekbeurt","presentatie"], TOP:["dieren","ruimte"], PLAN:["oefenen","plannen"] },
+      text:"Voor de {TALK} kiezen ze het onderwerp {TOP}. {NAME} wil meteen beginnen, maar maakt eerst een plan. Daarna gaat {NAME} {PLAN}. Zo wordt het duidelijker en minder stressvol. Op de dag zelf spreekt {NAME} rustig, kijkt af en toe op haar kaartje en krijgt applaus.",
+      questions:[
+        { id:"q1", prompt:"Waarover gaat de {TALK}?", choices:["{TOP}","Voetbal","Koken","Auto’s"], correctIndex:0 },
+        { id:"q2", prompt:"Wat doet {NAME} eerst?", choices:["Een plan maken","Hard rennen","Alles vergeten","Een toets maken"], correctIndex:0 }
+      ]
+    },
+    { id:"r.t20", level:2, targetWpm:110,
+      vars:{ NAME:["Amir","Sanne","Jesse"], TIME:["half drie","kwart over twee"], TOOL:["klok","horloge"] },
+      text:"{NAME} oefent klokkijken. Hij kijkt op de {TOOL} en zegt: “Het is {TIME}.” Daarna controleert hij het nog eens. Oefenen helpt hem sneller te worden. Als hij het goed heeft, zet hij een klein vinkje. Zo ziet hij zijn vooruitgang.",
+      questions:[
+        { id:"q1", prompt:"Wat oefent {NAME}?", choices:["Klokkijken","Zwemmen","Schilderen","Fietsen"], correctIndex:0 },
+        { id:"q2", prompt:"Wat doet {NAME} na het zeggen van de tijd?", choices:["Controleren","Verstoppen","Eten","Slapen"], correctIndex:0 }
+      ]
+    }
+  ];
+
+  function applyVars(str, vars){
+    return str.replace(/\{([A-Z0-9_]+)\}/g, (_,k)=> (vars[k]!==undefined ? String(vars[k]) : "{"+k+"}"));
+  }
+  function expandReading(){
+    const base = READ_TEMPLATES.map(t => materialize(t, 0, ""));
+    const variants = [];
+    // Exactly 30 variants: v1 for all 20, then v2 for first 10
+    for(let i=0;i<READ_TEMPLATES.length;i++){
+      variants.push(materialize(READ_TEMPLATES[i], 1, ".v1"));
+    }
+    for(let i=0;i<10;i++){
+      variants.push(materialize(READ_TEMPLATES[i], 2, ".v2"));
+    }
+    return base.concat(variants);
+
+    function pick(arr, idx){
+      if(!arr || !arr.length) return "";
+      return arr[Math.min(idx, arr.length-1)];
+    }
+    function materialize(t, idx, suffix){
+      const vars = {};
+      for(const k of Object.keys(t.vars)){
+        vars[k] = pick(t.vars[k], idx);
+      }
+      const text = applyVars(t.text, vars);
       return {
-        question: `${table * answer} ÷ ${table} = ?`,
-        extra: "Delen som",
-        answers: shuffle([
-          answer,
-          answer + 1,
-          answer - 1 < 0 ? answer + 2 : answer - 1,
-          answer + 3
-        ]),
-        correctValue: answer
+        id: t.id + suffix,
+        domain: "reading",
+        format: "passage",
+        level: t.level,
+        targetWpm: t.targetWpm,
+        text,
+        wordCount: words(text),
+        questions: t.questions.map(q => ({
+          id: q.id,
+          prompt: applyVars(q.prompt, vars),
+          choices: q.choices.map(c => applyVars(c, vars)),
+          correctIndex: q.correctIndex
+        }))
       };
     }
+  }
 
-    function rand(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+  // ---- Math skills + generator + deterministic 50-item testbank ----
+  const MATH_SKILLS = [
+    { id:"tables.mul.2", label:"Tafel ×2", kind:"mul", t:2, targetSec:7 },
+    { id:"tables.mul.3", label:"Tafel ×3", kind:"mul", t:3, targetSec:7 },
+    { id:"tables.mul.4", label:"Tafel ×4", kind:"mul", t:4, targetSec:7 },
+    { id:"tables.mul.5", label:"Tafel ×5", kind:"mul", t:5, targetSec:7 },
+    { id:"tables.mul.6", label:"Tafel ×6", kind:"mul", t:6, targetSec:7 },
+    { id:"tables.mul.7", label:"Tafel ×7", kind:"mul", t:7, targetSec:7 },
+    { id:"tables.mul.8", label:"Tafel ×8", kind:"mul", t:8, targetSec:7 },
+    { id:"tables.mul.9", label:"Tafel ×9", kind:"mul", t:9, targetSec:7 },
+    { id:"tables.mul.10", label:"Tafel ×10", kind:"mul", t:10, targetSec:7 },
+    { id:"tables.div.2", label:"Delen ÷2", kind:"div", t:2, targetSec:8 },
+    { id:"tables.div.3", label:"Delen ÷3", kind:"div", t:3, targetSec:8 },
+    { id:"tables.div.4", label:"Delen ÷4", kind:"div", t:4, targetSec:8 },
+    { id:"tables.div.5", label:"Delen ÷5", kind:"div", t:5, targetSec:8 },
+    { id:"tables.div.6", label:"Delen ÷6", kind:"div", t:6, targetSec:8 },
+    { id:"tables.div.7", label:"Delen ÷7", kind:"div", t:7, targetSec:8 },
+    { id:"tables.div.8", label:"Delen ÷8", kind:"div", t:8, targetSec:8 },
+    { id:"tables.div.9", label:"Delen ÷9", kind:"div", t:9, targetSec:8 },
+    { id:"number.add.100", label:"Plus tot 100", kind:"add", targetSec:9 },
+    { id:"number.sub.100", label:"Min tot 100", kind:"sub", targetSec:10 }
+  ];
+
+  // Deterministic RNG for repeatable testbank
+  function mulberry32(seed){
+    return function(){
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t ^= t + Math.imul(t ^ t >>> 7, 61 | t);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function pickInt(rng, a, b){ return a + Math.floor(rng()*(b-a+1)); }
+
+  function genMathItem(skill, mathSec, recentSet, rng=Math.random){
+    for(let tries=0;tries<30;tries++){
+      let id, prompt, ans;
+      if(skill.kind==="mul"){
+        const b = 2 + Math.floor(rng()*9), a = skill.t;
+        id = `m.mul.${a}x${b}`; prompt = `${a} × ${b} = ?`; ans = String(a*b);
+      }else if(skill.kind==="div"){
+        const b = 2 + Math.floor(rng()*9), a = skill.t, prod = a*b;
+        id = `m.div.${prod}d${a}`; prompt = `${prod} ÷ ${a} = ?`; ans = String(b);
+      }else if(skill.kind==="add"){
+        const a = 10 + Math.floor(rng()*71), b = 10 + Math.floor(rng()*30);
+        id = `m.add.${a}p${b}`; prompt = `${a} + ${b} = ?`; ans = String(a+b);
+      }else{
+        const a = 30 + Math.floor(rng()*70), b = 10 + Math.floor(rng()*Math.min(60, a-1));
+        id = `m.sub.${a}m${b}`; prompt = `${a} − ${b} = ?`; ans = String(a-b);
+      }
+      if(recentSet.has(id)) continue;
+      return {
+        id, domain:"math", skill:"math."+skill.id, format:"typed",
+        prompt:{ text:prompt },
+        answer:{ type:"text", value:ans },
+        metrics:{ timeLimitSec: mathSec, targetSec: skill.targetSec }
+      };
+    }
+    return {
+      id:"m.fallback.7x8", domain:"math", skill:"math.tables.mul.7", format:"typed",
+      prompt:{ text:"7 × 8 = ?" }, answer:{ type:"text", value:"56" }, metrics:{ timeLimitSec: mathSec, targetSec: 7 }
+    };
+  }
+
+  function buildMathTestBank50(){
+    const rng = mulberry32(20260313);
+    const bank = [];
+    const used = new Set();
+    while(bank.length < 50){
+      const s = MATH_SKILLS[pickInt(rng, 0, MATH_SKILLS.length-1)];
+      const item = genMathItem(s, 10, used, rng);
+      if(used.has(item.id)) continue;
+      used.add(item.id);
+      bank.push(item);
+    }
+    return bank;
+  }
+
+  // Build packs
+  const PACKS = {
+    english: buildEnglishItems(),
+    reading: expandReading(),
+    mathTest: buildMathTestBank50()
+  };
+
+  // ============================================================
+  // APP ENGINE
+  // ============================================================
+  let ST = null;
+  let SESS = null;
+
+  // timers
+  let tId=null, tLeft=null;
+  let perf0=null;
+
+  function view(id){
+    for(const name of ["home","session","report","parent"]) $("#"+name).hidden = (name!==id);
+  }
+
+  function timerSet(sec){
+    clearInterval(tId); tId=null;
+    const el=$("#uiTimer");
+    if(sec==null){ tLeft=null; el.textContent="--"; el.className="timer"; return; }
+    tLeft=sec;
+    paint();
+    tId=setInterval(()=>{
+      tLeft--;
+      paint();
+      if(tLeft<=0){ clearInterval(tId); tId=null; onTimeout(); }
+    },1000);
+
+    function paint(){
+      el.textContent = String(tLeft).padStart(2,"0");
+      el.className = "timer "+(tLeft<=3?"bad":(tLeft<=6?"warn":"good"));
+    }
+  }
+
+  function setSessionPills(){
+    $("#uiMode").textContent = (SESS.mode==="test") ? "Toets" : "Oefenen";
+    $("#uiDom").textContent = SESS.domLabel;
+    $("#uiStep").textContent = `${SESS.step}/${SESS.total}`;
+    $("#uiBar").style.width = `${Math.round(((SESS.step-1)/SESS.total)*100)}%`;
+  }
+
+  function fb(text, kind){
+    const el=$("#uiFb");
+    el.className="feedback "+(kind||"");
+    el.textContent=text||"";
+  }
+
+  function startSession(mode, domain){
+    const s=ST.settings;
+    const plan = (domain==="mixed")
+      ? [{d:"math",n:s.practice.mathN},{d:"reading",n:s.practice.readN},{d:"english",n:s.practice.engN}]
+      : [{d:domain,n: domain==="math"?s.practice.mathN : domain==="english"?s.practice.engN : s.practice.readN}];
+
+    SESS = {
+      id: uid(),
+      mode,
+      domain,
+      plan,
+      pi: 0,
+      step: 0,
+      total: plan.reduce((a,x)=>a+x.n,0),
+      domLabel: "-",
+      cur: null,
+      reading: null,
+      results: [],
+      pools: mode==="test" ? {
+        math: shuffle(PACKS.mathTest),
+        english: shuffle(PACKS.english),
+        reading: shuffle(PACKS.reading)
+      } : null
+    };
+    view("session");
+    $("#btnNext").disabled=true;
+    $("#btnSkip").disabled=false;
+    nextStep();
+  }
+
+  function currentPlan(){ return SESS.plan[SESS.pi]; }
+  function advancePlan(){ while(SESS.pi<SESS.plan.length && currentPlan().n<=0) SESS.pi++; }
+  function done(){ return SESS.pi>=SESS.plan.length; }
+
+  function onTimeout(){
+    if(!SESS?.cur) return;
+    finalize(false, null, { timeout:true });
+  }
+
+  function disableInputs(){
+    $$("#session button, #session input").forEach(el=>{
+      if(el.id==="btnQuit" || el.id==="btnNext") return;
+      el.disabled=true;
+    });
+  }
+
+  function gradeFrom(ok, rtMs, targetSec){
+    if(!ok) return 0;
+    if(rtMs==null) return 1;
+    return (rtMs <= targetSec*1000) ? 2 : 1;
+  }
+
+  function finalize(ok, rtMs, meta={}){
+    timerSet(null);
+    if(!SESS?.cur || SESS.cur.answered) return;
+    SESS.cur.answered=true;
+
+    const ud=ST.data[ST.active];
+    const affects = (SESS.mode==="test") ? ST.settings.test.affectsSrs : true;
+
+    const item = SESS.cur.item;
+    const targetSec = item.metrics?.targetSec ?? 10;
+    const grade = gradeFrom(ok, rtMs, targetSec);
+    const fast = (grade===2);
+
+    if(SESS.cur.dom==="english"){
+      srsUpdate(ud, kItem("english", item.id), ok, fast, affects, rtMs);
+      recentAdd(ud,"english", item.id, ST.settings.anti.recentMax);
+    }
+    if(SESS.cur.dom==="reading"){
+      srsUpdate(ud, kItem("reading", item.id), ok, fast, affects, rtMs);
+      recentAdd(ud,"reading", item.id, ST.settings.anti.recentMax);
+    }
+    if(SESS.cur.dom==="math"){
+      const sk = item.skill.replace(/^math\./,"");
+      srsUpdate(ud, kMathSkill(sk), ok, fast, affects, rtMs);
+      recentAdd(ud,"math", item.id, ST.settings.anti.recentMax);
     }
 
-    function shuffle(arr) {
-      const copy = [...arr];
-      for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-      }
-      return copy;
-    }
+    SESS.results.push({ ts:now(), dom:SESS.cur.dom, id:item.id, skill:item.skill||null, ok:!!ok, rtMs, meta });
 
-    let currentMode = "";
-    let questions = [];
-    let index = 0;
-    let score = 0;
-    let answered = false;
-    let timer = 10;
-    let timerId = null;
+    disableInputs();
+    $("#btnNext").disabled=false;
+    $("#btnSkip").disabled=true;
 
-    const menuView = document.getElementById("menuView");
-    const gameView = document.getElementById("gameView");
-    const resultView = document.getElementById("resultView");
+    persist();
+  }
 
-    const scorePill = document.getElementById("scorePill");
-    const roundPill = document.getElementById("roundPill");
-    const modePill = document.getElementById("modePill");
-
-    const gameTitle = document.getElementById("gameTitle");
-    const questionText = document.getElementById("questionText");
-    const questionExtra = document.getElementById("questionExtra");
-    const answersBox = document.getElementById("answers");
-    const feedback = document.getElementById("feedback");
-    const nextBtn = document.getElementById("nextBtn");
-    const progressBar = document.getElementById("progressBar");
-    const timerLine = document.getElementById("timerLine");
-
-    const resultText = document.getElementById("resultText");
-    const resultTip = document.getElementById("resultTip");
-
-    function startGame(mode) {
-      currentMode = mode;
-      questions = [];
-      index = 0;
-      score = 0;
-      answered = false;
-
-      if (mode === "math") {
-        gameTitle.textContent = "➕ Rekenen snelheid";
-        modePill.textContent = "Onderdeel: Rekenen";
-        for (let i = 0; i < 10; i++) {
-          questions.push(makeMathQuestion());
-        }
-      }
-
-      if (mode === "reading") {
-        gameTitle.textContent = "📖 Lezen snelheid";
-        modePill.textContent = "Onderdeel: Lezen";
-        questions = shuffle(readingQuestions).slice(0, 10);
-      }
-
-      if (mode === "english") {
-        gameTitle.textContent = "🇬🇧 Engels basis";
-        modePill.textContent = "Onderdeel: Engels";
-        questions = shuffle(englishQuestions).slice(0, 10);
-      }
-
-      menuView.classList.add("hidden");
-      resultView.classList.add("hidden");
-      gameView.classList.remove("hidden");
-
-      updatePills();
-      showQuestion();
-    }
-
-    function showQuestion() {
-      clearInterval(timerId);
-      answered = false;
-      nextBtn.disabled = true;
-      feedback.textContent = "";
-      feedback.style.color = "#1f2a44";
-      answersBox.innerHTML = "";
-
-      const q = questions[index];
-      questionText.textContent = q.question;
-      questionExtra.textContent = q.extra || "";
-      roundPill.textContent = `Vraag: ${index + 1}/10`;
-      progressBar.style.width = `${(index / 10) * 100}%`;
-
-      q.answers.forEach((answer, i) => {
-        const btn = document.createElement("button");
-        btn.className = "answer-btn";
-        btn.textContent = answer;
-        btn.onclick = () => chooseAnswer(i, btn);
-        answersBox.appendChild(btn);
-      });
-
-      timer = currentMode === "math" || currentMode === "reading" ? 10 : 12;
-      timerLine.textContent = `Tijd: ${timer}`;
-
-      timerId = setInterval(() => {
-        timer--;
-        timerLine.textContent = `Tijd: ${timer}`;
-        if (timer <= 0) {
-          clearInterval(timerId);
-          if (!answered) {
-            handleTimeout();
-          }
-        }
-      }, 1000);
-    }
-
-    function chooseAnswer(i, btn) {
-      if (answered) return;
-      answered = true;
-      clearInterval(timerId);
-
-      const q = questions[index];
-      const buttons = document.querySelectorAll(".answer-btn");
-
-      let isCorrect = false;
-
-      if (currentMode === "math") {
-        const chosenValue = Number(btn.textContent);
-        isCorrect = chosenValue === q.correctValue;
-        buttons.forEach(b => {
-          if (Number(b.textContent) === q.correctValue) b.classList.add("correct");
-        });
-      } else {
-        isCorrect = i === q.correct;
-        buttons[q.correct].classList.add("correct");
-      }
-
-      if (isCorrect) {
-        btn.classList.add("correct");
-        score++;
-        feedback.textContent = "Goed gedaan!";
-        feedback.style.color = "#17803d";
-      } else {
-        btn.classList.add("wrong");
-        feedback.textContent = "Bijna. De goeie stond groen.";
-        feedback.style.color = "#b42318";
-      }
-
-      updatePills();
-      nextBtn.disabled = false;
-    }
-
-    function handleTimeout() {
-      answered = true;
-      const q = questions[index];
-      const buttons = document.querySelectorAll(".answer-btn");
-
-      if (currentMode === "math") {
-        buttons.forEach(b => {
-          if (Number(b.textContent) === q.correctValue) b.classList.add("correct");
-        });
-      } else {
-        buttons[q.correct].classList.add("correct");
-      }
-
-      feedback.textContent = "Tijd om. Probeer de volgende iets sneller.";
-      feedback.style.color = "#b45309";
-      nextBtn.disabled = false;
-    }
-
-    function nextQuestion() {
-      index++;
-      if (index >= questions.length) {
-        showResult();
+  function nextStep(){
+    // Reading: if in questions flow and answered, advance question
+    if(SESS?.reading && SESS.reading.phase==="questions" && SESS.reading.answered){
+      const r=SESS.reading;
+      if(r.qi < r.item.questions.length-1){
+        r.qi++; r.answered=false;
+        renderReadQ();
         return;
       }
-      showQuestion();
     }
 
-    function showResult() {
-      clearInterval(timerId);
-      gameView.classList.add("hidden");
-      resultView.classList.remove("hidden");
-      progressBar.style.width = "100%";
+    advancePlan();
+    if(done()){ finishSession(); return; }
 
-      let levelText = "";
-      let tipText = "";
+    const p=currentPlan();
+    const dom=p.d; p.n--;
+    SESS.step++;
 
-      if (score <= 4) {
-        levelText = "Je bent goed bezig. We oefenen rustig verder.";
-        tipText = "Tip: doe morgen nog een ronde van hetzelfde onderdeel. Korte oefening werkt het best.";
-      } else if (score <= 7) {
-        levelText = "Netjes. Je zit al lekker op weg.";
-        tipText = "Tip: probeer de volgende ronde nóg sneller te antwoorden zonder te gokken.";
-      } else if (score <= 9) {
-        levelText = "Super gedaan. Jij bent echt scherp.";
-        tipText = "Tip: wissel morgen af met een ander onderdeel voor extra groei.";
-      } else {
-        levelText = "Wauw, 10 uit 10. Mega knap!";
-        tipText = "Tip: tijd voor de volgende uitdaging. Probeer nu ook een ander onderdeel.";
+    if(dom==="math"){ SESS.domLabel="Rekenen"; renderMath(); }
+    else if(dom==="english"){ SESS.domLabel="Engels"; renderEnglish(); }
+    else { SESS.domLabel="Lezen"; renderReading(); }
+
+    setSessionPills();
+    $("#btnNext").disabled=true;
+    $("#btnSkip").disabled=false;
+    fb("", "");
+  }
+
+  function pickFromPool(domain){
+    const ud=ST.data[ST.active];
+    const recentSet = new Set(ud.recent[domain]||[]);
+    const pool = SESS.pools[domain];
+    // Try a few pops to avoid recent; fallback to any
+    for(let i=0;i<pool.length;i++){
+      const cand = pool.shift();
+      if(!recentSet.has(cand.id)) return cand;
+      pool.push(cand);
+    }
+    return pool.shift() || null;
+  }
+
+  function pickEnglish(){
+    const ud=ST.data[ST.active];
+    const n=now();
+    const items = PACKS.english;
+    const avoid = items.filter(it=>!isRecent(ud,"english",it.id));
+    const base = avoid.length ? avoid : items;
+
+    if(SESS.mode==="test"){
+      return base[Math.floor(Math.random()*base.length)];
+    }
+
+    const due = base.filter(it=>{
+      const r=srsGet(ud, kItem("english", it.id));
+      return r.seen===0 || r.due<=n;
+    });
+
+    const pool = (Math.random()<ST.settings.english.dueFrac && due.length) ? due : base;
+
+    const w = pool.map(it=>{
+      const r=srsGet(ud, kItem("english", it.id));
+      const acc = r.seen ? (r.correct/r.seen) : 0.5;
+      const accF = 1 + (1-acc)*0.8;
+      const boxF = 1 + (5-clamp(r.box,0,5))*0.35;
+      const dueF = (r.seen>0 && r.due<=n) ? 1.6 : 1.0;
+      return accF*boxF*dueF;
+    });
+    return weightedPick(pool,w);
+  }
+
+  function pickReading(){
+    const ud=ST.data[ST.active];
+    const n=now();
+    const items = PACKS.reading;
+    const avoid = items.filter(it=>!isRecent(ud,"reading",it.id));
+    const base = avoid.length ? avoid : items;
+
+    if(SESS.mode==="test"){
+      return base[Math.floor(Math.random()*base.length)];
+    }
+
+    const w = base.map(it=>{
+      const r=srsGet(ud, kItem("reading", it.id));
+      const dueF = (r.seen>0 && r.due<=n) ? 1.8 : 1.0;
+      const seenF = 1 + (r.seen===0 ? 0.9 : 1/(1+r.seen));
+      return dueF*seenF;
+    });
+    return weightedPick(base,w);
+  }
+
+  function pickMathSkill(){
+    const ud=ST.data[ST.active];
+    const n=now();
+
+    if(SESS.mode==="test"){
+      return MATH_SKILLS[Math.floor(Math.random()*MATH_SKILLS.length)];
+    }
+
+    const due = MATH_SKILLS.filter(s=>{
+      const r=srsGet(ud, kMathSkill(s.id));
+      return r.seen===0 || r.due<=n;
+    });
+    const pool = due.length ? due : MATH_SKILLS;
+
+    const w = pool.map(s=>{
+      const r=srsGet(ud, kMathSkill(s.id));
+      const acc = r.seen ? (r.correct/r.seen) : 0.5;
+      const accF = 1 + (1-acc)*1.2;
+      const boxF = 1 + (5-clamp(r.box,0,5))*0.25;
+      const dueF = (r.seen>0 && r.due<=n) ? 1.6 : 1.0;
+      return accF*boxF*dueF;
+    });
+
+    return weightedPick(pool,w);
+  }
+
+  function renderMath(){
+    const ud=ST.data[ST.active];
+    const recentSet = new Set(ud.recent.math||[]);
+    let item=null, skill=null;
+
+    if(SESS.mode==="test"){
+      item = pickFromPool("math") || null;
+      if(!item){
+        skill = pickMathSkill();
+        item = genMathItem(skill, ST.settings.timers.mathSec, recentSet, Math.random);
+      }else{
+        // normalize metrics for current settings
+        item.metrics = item.metrics || {};
+        item.metrics.timeLimitSec = ST.settings.timers.mathSec;
+      }
+    }else{
+      skill = pickMathSkill();
+      item = genMathItem(skill, ST.settings.timers.mathSec, recentSet, Math.random);
+    }
+
+    const skillLabel = (skill && skill.label) ? skill.label : (item.skill||"Rekenen");
+    SESS.cur = { dom:"math", item, answered:false };
+
+    $("#uiPrompt").innerHTML = `<div class="small">Skill: <span style="font-family:var(--mono)">${esc(skillLabel)}</span></div>
+      <div class="question" style="margin-top:6px">${esc(item.prompt.text)}</div>`;
+
+    $("#uiAnswer").innerHTML = `
+      <label class="small" style="margin-top:10px">Antwoord</label>
+      <input id="inMath" inputmode="numeric" placeholder="Typ..." />
+      <div class="keypad" aria-label="Toetsen">
+        ${["1","2","3","4","5","6","7","8","9","bk","0","ok"].map(k=>{
+          const lab = k==="bk"?"⌫":(k==="ok"?"OK":k);
+          const cls = k==="ok"?"good":(k==="bk"?"warn":"");
+          return `<button class="${cls}" data-k="${k}">${lab}</button>`;
+        }).join("")}
+      </div>`;
+
+    perf0 = performance.now();
+    timerSet(ST.settings.timers.mathSec);
+
+    const input=$("#inMath"); input.focus();
+    $$("#uiAnswer .keypad button").forEach(b=>b.onclick=()=>{
+      const k=b.dataset.k;
+      if(k==="bk"){ input.value=input.value.slice(0,-1); input.focus(); return; }
+      if(k==="ok"){ submit(); return; }
+      input.value+=k; input.focus();
+    });
+    input.addEventListener("keydown", e=>{ if(e.key==="Enter") submit(); });
+
+    function submit(){
+      const rt = Math.round(performance.now()-perf0);
+      const ok = norm(input.value)===norm(item.answer.value);
+      if(SESS.mode==="test"){
+        fb(ok?"OK":"Genoteerd", ok?"good":"warn");
+      }else{
+        fb(ok?"Goed!":"Bijna. Goed: "+item.answer.value, ok?"good":"bad");
+      }
+      finalize(ok, rt, { given: input.value, expected: item.answer.value });
+    }
+  }
+
+  function renderEnglish(){
+    let item=null;
+
+    if(SESS.mode==="test"){
+      item = pickFromPool("english") || (PACKS.english[Math.floor(Math.random()*PACKS.english.length)]);
+    }else{
+      item = pickEnglish();
+    }
+
+    SESS.cur = { dom:"english", item, answered:false };
+
+    $("#uiPrompt").innerHTML = `<div class="small">Skill: <span style="font-family:var(--mono)">${esc(item.skill)}</span></div>
+      <div class="question" style="margin-top:6px">${esc(item.prompt.text)}</div>`;
+
+    perf0 = performance.now();
+    timerSet(ST.settings.timers.engSec);
+
+    if(item.format==="typed"){
+      $("#uiAnswer").innerHTML = `
+        <label class="small" style="margin-top:10px">Antwoord</label>
+        <input id="inEng" inputmode="text" placeholder="Typ..." />
+        <div class="keypad" aria-label="Knoppen">
+          <button class="warn" data-k="bk">⌫</button>
+          <button class="good" data-k="ok">OK</button>
+        </div>`;
+      const input=$("#inEng"); input.focus();
+      $$("#uiAnswer .keypad button").forEach(b=>b.onclick=()=>{
+        const k=b.dataset.k;
+        if(k==="bk"){ input.value=input.value.slice(0,-1); input.focus(); return; }
+        submit();
+      });
+      input.addEventListener("keydown", e=>{ if(e.key==="Enter") submit(); });
+
+      function submit(){
+        const rt = Math.round(performance.now()-perf0);
+        const ok = norm(input.value)===norm(item.answer.value);
+        if(SESS.mode==="test"){
+          fb(ok?"OK":"Genoteerd", ok?"good":"warn");
+        }else{
+          fb(ok?"Goed!":"Bijna. Goed: "+item.answer.value, ok?"good":"bad");
+        }
+        finalize(ok, rt, { given: input.value, expected: item.answer.value });
+      }
+      return;
+    }
+
+    $("#uiAnswer").innerHTML = `<div class="answers" role="group" aria-label="Antwoorden">
+      ${item.choices.map(c=>`<button class="answer" data-id="${c.id}">${esc(c.text)}</button>`).join("")}
+    </div>`;
+
+    $$("#uiAnswer .answer").forEach(btn=>btn.onclick=()=>{
+      const chosen = btn.dataset.id;
+      const rt = Math.round(performance.now()-perf0);
+      const ok = chosen===item.answer.value;
+
+      $$("#uiAnswer .answer").forEach(b=>{
+        if(b.dataset.id===item.answer.value) b.classList.add("correct");
+        b.disabled=true;
+      });
+      if(!ok) btn.classList.add("wrong");
+
+      const correctText = item.choices.find(x=>x.id===item.answer.value)?.text || "";
+      if(SESS.mode==="test"){
+        fb(ok?"OK":"Genoteerd", ok?"good":"warn");
+      }else{
+        fb(ok?"Goed!":"Bijna. Goed: "+correctText, ok?"good":"bad");
+      }
+      finalize(ok, rt, { given: chosen, expected: item.answer.value });
+    });
+  }
+
+  function renderReading(){
+    let item=null;
+
+    if(SESS.mode==="test"){
+      item = pickFromPool("reading") || (PACKS.reading[Math.floor(Math.random()*PACKS.reading.length)]);
+    }else{
+      item = pickReading();
+    }
+
+    SESS.cur = { dom:"reading", item, answered:false };
+    SESS.reading = { item, attempts:[], phase:"ready", qi:0, compOk:0, answered:false };
+
+    $("#uiPrompt").innerHTML = `<div class="small">Woorden: <span style="font-family:var(--mono)">${item.wordCount}</span></div>
+      <div class="question" style="margin-top:6px">Lees hardop en druk op “Klaar”.</div>
+      <div class="passage" style="margin-top:10px">${esc(item.text)}</div>`;
+
+    $("#uiAnswer").innerHTML = `
+      <div class="row" style="margin-top:10px">
+        <button id="btnReadStart" class="good">Start lezen</button>
+        <button id="btnReadDone" class="primary" disabled>Klaar</button>
+        <div class="pill">WPM: <strong id="uiWpm">-</strong></div>
+      </div>
+      <div class="small" id="uiReadMsg" style="margin-top:8px">Herhalen: ${ST.settings.practice.readRep}×</div>`;
+
+    timerSet(null);
+
+    let t0=null, sec=0, readId=null;
+    $("#btnReadStart").onclick=()=>{
+      if(t0) return;
+      $("#btnReadStart").disabled=true;
+      $("#btnReadDone").disabled=false;
+      t0=performance.now(); sec=0;
+      $("#uiTimer").textContent="00"; $("#uiTimer").className="timer good";
+      readId=setInterval(()=>{sec++; $("#uiTimer").textContent=String(sec).padStart(2,"0");},1000);
+    };
+    $("#btnReadDone").onclick=()=>{
+      if(!t0) return;
+      clearInterval(readId); readId=null;
+      const durSec=Math.max(1, Math.round((performance.now()-t0)/1000));
+      const wpm=Math.round((item.wordCount/durSec)*60);
+      SESS.reading.attempts.push({ durSec, wpm });
+      $("#uiWpm").textContent=String(wpm);
+      t0=null;
+
+      const left = ST.settings.practice.readRep - SESS.reading.attempts.length;
+      if(left>0){
+        $("#btnReadStart").disabled=false;
+        $("#btnReadDone").disabled=true;
+        $("#uiReadMsg").textContent = `Nog ${left}× dezelfde tekst. Probeer vloeiender te worden.`;
+        return;
+      }
+      SESS.reading.phase="questions";
+      $("#uiReadMsg").textContent="Nu begripvragen.";
+      renderReadQ();
+    };
+  }
+
+  function renderReadQ(){
+    const r=SESS.reading;
+    const q=r.item.questions[r.qi];
+
+    $("#uiPrompt").innerHTML = `<div class="small">Begripvraag ${r.qi+1}/${r.item.questions.length}</div>
+      <div class="question" style="margin-top:6px">${esc(q.prompt)}</div>`;
+
+    $("#uiAnswer").innerHTML = `<div class="answers" role="group" aria-label="Antwoorden">
+      ${q.choices.map((t,i)=>`<button class="answer" data-i="${i}">${esc(t)}</button>`).join("")}
+    </div>`;
+
+    timerSet(null);
+    perf0 = performance.now();
+
+    $$("#uiAnswer .answer").forEach(btn=>btn.onclick=()=>{
+      const chosen = Number(btn.dataset.i);
+      const ok = chosen===q.correctIndex;
+      if(ok) r.compOk++;
+
+      $$("#uiAnswer .answer").forEach(b=>{
+        const i=Number(b.dataset.i);
+        if(i===q.correctIndex) b.classList.add("correct");
+        b.disabled=true;
+      });
+      if(!ok) btn.classList.add("wrong");
+
+      if(SESS.mode==="test"){
+        fb(ok?"OK":"Genoteerd", ok?"good":"warn");
+      }else{
+        fb(ok?"Goed!":"Bijna. Goed: "+q.choices[q.correctIndex], ok?"good":"bad");
       }
 
-      resultText.textContent = `Score: ${score} van de 10. ${levelText}`;
-      resultTip.textContent = tipText;
-      updatePills();
-    }
+      const last = (r.qi===r.item.questions.length-1);
+      const rt = Math.round(performance.now()-perf0);
 
-    function restartSameMode() {
-      startGame(currentMode);
-    }
+      if(last){
+        const bestWpm = Math.max(...r.attempts.map(x=>x.wpm));
+        const compOk = r.compOk >= Math.ceil(r.item.questions.length*0.75);
+        const fast = bestWpm >= (r.item.targetWpm||110);
+        // override grading via meta
+        finalize(compOk, rt, { reading:{ bestWpm, targetWpm:r.item.targetWpm, comp:{ ok:r.compOk, total:r.item.questions.length }, attempts:r.attempts, fast } });
+      }else{
+        r.answered=true;
+        $("#btnNext").disabled=false;
+        $("#btnSkip").disabled=true;
+      }
+    });
+  }
 
-    function backToMenu() {
-      clearInterval(timerId);
-      menuView.classList.remove("hidden");
-      gameView.classList.add("hidden");
-      resultView.classList.add("hidden");
-      roundPill.textContent = "Vraag: 0/10";
-      modePill.textContent = "Onderdeel: -";
-    }
+  function finishSession(){
+    const ud=ST.data[ST.active];
+    const res=SESS.results;
 
-    function updatePills() {
-      scorePill.textContent = `Score: ${score}`;
-      roundPill.textContent = `Vraag: ${index + 1 > 10 ? 10 : index + 1}/10`;
+    const stat = (dom) => {
+      const a=res.filter(x=>x.dom===dom);
+      const ok=a.filter(x=>x.ok).length;
+      const rts=a.map(x=>x.rtMs);
+      return { n:a.length, ok, acc:a.length?Math.round(ok/a.length*100):0, medRt: median(rts) };
+    };
+
+    const m = stat("math");
+    const e = stat("english");
+    let readMeta = null;
+    for(let i=res.length-1;i>=0;i--){ if(res[i].dom==="reading"){ readMeta = res[i].meta?.reading || null; break; } }
+
+    const sum = {
+      id: SESS.id,
+      when: now(),
+      mode: SESS.mode,
+      totals: { n: res.length, ok: res.filter(x=>x.ok).length },
+      math: m,
+      english: e,
+      reading: readMeta ? { bestWpm: readMeta.bestWpm, targetWpm: readMeta.targetWpm, comp: readMeta.comp } : null
+    };
+
+    ud.sessions.unshift(sum);
+    ud.sessions = ud.sessions.slice(0, 20);
+
+    renderReports();
+    view("report");
+    persist();
+    SESS=null;
+  }
+
+  function renderSummary(s){
+    const rt = (ms)=> ms==null?"-":(Math.round(ms/100)/10).toFixed(1)+"s";
+    const mode = s.mode==="test"?"Toets":"Oefenen";
+    const dt = new Intl.DateTimeFormat("nl-NL",{dateStyle:"short",timeStyle:"short"}).format(new Date(s.when));
+    const r = s.reading ? ` • Lezen: WPM ${s.reading.bestWpm} (doel ${s.reading.targetWpm}), begrip ${s.reading.comp.ok}/${s.reading.comp.total}` : "";
+    return `<strong>${mode}</strong> • ${dt}<br>
+      Totaal: ${s.totals.ok}/${s.totals.n} goed<br>
+      Rekenen: ${s.math.ok}/${s.math.n} (${s.math.acc}%) medRT ${rt(s.math.medRt)}<br>
+      Engels: ${s.english.ok}/${s.english.n} (${s.english.acc}%) medRT ${rt(s.english.medRt)}${r}`;
+  }
+
+  function renderHist(list){
+    if(!list.length) return "Nog geen sessies.";
+    return list.map(s=>{
+      const dt = new Intl.DateTimeFormat("nl-NL",{dateStyle:"short",timeStyle:"short"}).format(new Date(s.when));
+      return `• ${dt} — ${s.mode==="test"?"Toets":"Oefenen"} — ${s.totals.ok}/${s.totals.n} goed`;
+    }).join("<br>");
+  }
+
+  function quick(list){
+    if(!list.length) return "Nog geen sessies.";
+    const last=list[0];
+    const days=new Set(list.map(s=>new Date(s.when).toISOString().slice(0,10)));
+    let d=new Date(), streak=0;
+    for(let i=0;i<90;i++){
+      const k=d.toISOString().slice(0,10);
+      if(days.has(k)) streak++; else break;
+      d.setDate(d.getDate()-1);
     }
-  </script>
+    return `Laatste: <strong>${last.mode==="test"?"Toets":"Oefenen"}</strong> — ${last.totals.ok}/${last.totals.n} goed.<br>
+      Streak (dagen): <strong>${streak}</strong>`;
+  }
+
+  function srsTopHtml(ud){
+    const n=now();
+    const rows=[];
+    for(const [k,r] of Object.entries(ud.srs)){
+      const acc = r.seen ? Math.round((r.correct/r.seen)*100) : 0;
+      const due = (r.seen>0 && r.due<=n);
+      if(due || acc<80){
+        rows.push({ k, acc, box:r.box, due:r.due, state:mastery(r.box) });
+      }
+    }
+    rows.sort((a,b)=>(a.due||0)-(b.due||0));
+    const top=rows.slice(0,12);
+    if(!top.length) return "Nog geen SRS-data.";
+    return top.map(x=>`• ${esc(x.k)} — acc ${x.acc}% — box ${x.box} (${x.state}) — due ${x.due?new Date(x.due).toLocaleString("nl-NL"):"-"}`).join("<br>");
+  }
+
+  function sampleExport(){
+    const payload={ exportedAt:now(), app:"sanne-ai-game", v:APPV, state:ST };
+    return JSON.stringify(payload, null, 2);
+  }
+
+  function renderReports(){
+    const ud=ST.data[ST.active];
+    $("#uiUser").textContent = ST.users[ST.active].name;
+
+    $("#uiQuick").innerHTML = quick(ud.sessions);
+    $("#uiLast").innerHTML = ud.sessions[0] ? renderSummary(ud.sessions[0]) : "Nog geen sessie.";
+    $("#uiHist").innerHTML = renderHist(ud.sessions);
+
+    $("#uiProg").style.width = ud.sessions.length ? "100%" : "0%";
+    $("#uiHint").textContent = `Packs: rekenen(test)=${PACKS.mathTest.length}, lezen=${PACKS.reading.length}, Engels=${PACKS.english.length}`;
+
+    $("#uiDbg").textContent = `v=${ST.v} opslag=${Store.kind} sessies=${ud.sessions.length} srs=${Object.keys(ud.srs).length}`;
+    $("#uiSrsTop").innerHTML = srsTopHtml(ud);
+    $("#uiSampleExport").value = sampleExport();
+    $("#uiPacks").textContent = "50/50/50";
+  }
+
+  async function persist(){
+    try{ await Store.set(ST); }catch(e){}
+    renderReports();
+  }
+
+  // ---------- parent controls ----------
+  function fillUserSelect(){
+    const sel=$("#selUser");
+    sel.innerHTML = Object.values(ST.users).map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join("");
+    sel.value = ST.active;
+  }
+
+  function fillParentFields(){
+    const s=ST.settings;
+    $("#setMathN").value=s.practice.mathN;
+    $("#setEngN").value=s.practice.engN;
+    $("#setReadRep").value=s.practice.readRep;
+    $("#setMathSec").value=s.timers.mathSec;
+    $("#setEngSec").value=s.timers.engSec;
+    $("#setDueFrac").value=s.english.dueFrac;
+    $("#setTestAffects").value=s.test.affectsSrs ? "yes" : "no";
+    fillUserSelect();
+  }
+
+  function saveParent(){
+    const s=ST.settings;
+    s.practice.mathN = clamp(Number($("#setMathN").value||20), 5, 60);
+    s.practice.engN  = clamp(Number($("#setEngN").value||12), 5, 60);
+    s.practice.readRep = clamp(Number($("#setReadRep").value||2), 1, 4);
+    s.timers.mathSec = clamp(Number($("#setMathSec").value||10), 5, 25);
+    s.timers.engSec  = clamp(Number($("#setEngSec").value||14), 6, 30);
+    s.english.dueFrac= clamp(Number($("#setDueFrac").value||0.7), 0, 1);
+    s.test.affectsSrs = ($("#setTestAffects").value==="yes");
+    $("#uiParentMsg").textContent="Opgeslagen.";
+    persist();
+  }
+
+  function resetSettings(){
+    ST.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+    $("#uiParentMsg").textContent="Instellingen gereset.";
+    persist();
+  }
+
+  function addUser(){
+    const name = String($("#newUser").value||"").trim();
+    if(!name){ $("#uiParentMsg").textContent="Vul een naam in."; return; }
+    const base = name.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"") || "user";
+    let id=base, i=2;
+    while(ST.users[id]){ id=base+"-"+i; i++; }
+    ST.users[id] = { id, name, createdAt: now() };
+    ensureUser(ST, id);
+    ST.active = id;
+    $("#newUser").value="";
+    $("#uiParentMsg").textContent="Profiel toegevoegd.";
+    persist();
+  }
+
+  function switchUser(){
+    const id=$("#selUser").value;
+    if(!ST.users[id]) return;
+    ST.active=id;
+    ensureUser(ST, id);
+    $("#uiParentMsg").textContent="Profiel gewisseld.";
+    persist();
+    view("home");
+  }
+
+  function exportJSON(){
+    const payload={ exportedAt:now(), app:"sanne-ai-game", v:APPV, state:ST };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download=`sanne-ai-export-${new Date().toISOString().slice(0,10)}.json`;
+    a.click(); URL.revokeObjectURL(url);
+    $("#uiParentMsg").textContent="Export gedownload.";
+  }
+
+  async function importJSON(file){
+    const text=await file.text();
+    try{
+      const payload=JSON.parse(text);
+      if(!payload?.state?.users || !payload?.state?.data) throw new Error("Ongeldig bestand.");
+      ST=payload.state;
+      ensureUser(ST, ST.active);
+      await Store.set(ST);
+      $("#uiParentMsg").textContent="Import gelukt.";
+      fillParentFields();
+      renderReports();
+      view("home");
+    }catch(e){
+      $("#uiParentMsg").textContent="Import mislukt: "+e.message;
+    }
+  }
+
+  async function wipeAll(){
+    if(!confirm("Alles wissen?")) return;
+    await Store.clear();
+    ST=blankState();
+    await Store.set(ST);
+    $("#uiParentMsg").textContent="Alles gewist.";
+    fillParentFields();
+    renderReports();
+    view("home");
+  }
+
+  // ---------- wire UI ----------
+  function wire(){
+    $$("button[data-view]").forEach(b=>b.onclick=()=>view(b.dataset.view));
+
+    $("#btnPracticeMixed").onclick=()=>startSession("practice","mixed");
+    $("#btnTestMixed").onclick=()=>startSession("test","mixed");
+    $("#btnPracticeMath").onclick=()=>startSession("practice","math");
+    $("#btnPracticeRead").onclick=()=>startSession("practice","reading");
+    $("#btnPracticeEng").onclick=()=>startSession("practice","english");
+
+    $("#btnNext").onclick=()=>{ $("#btnNext").disabled=true; nextStep(); };
+    $("#btnSkip").onclick=()=>finalize(false,null,{skipped:true});
+    $("#btnQuit").onclick=()=>{ timerSet(null); SESS=null; view("home"); renderReports(); };
+
+    $("#btnAgain").onclick=()=>startSession("practice","mixed");
+    $("#btnHome").onclick=()=>view("home");
+
+    $("#btnSave").onclick=saveParent;
+    $("#btnReset").onclick=resetSettings;
+    $("#btnAddUser").onclick=addUser;
+    $("#selUser").onchange=switchUser;
+
+    $("#btnExport").onclick=exportJSON;
+    $("#fileImport").onchange=(e)=>{ const f=e.target.files?.[0]; if(f) importJSON(f).finally(()=>e.target.value=""); };
+    $("#btnWipe").onclick=wipeAll;
+  }
+
+  // ---------- boot ----------
+  async function boot(){
+    $("#uiPacks").textContent = "laden…";
+    const kind = await Store.init();
+    $("#uiStore").textContent = kind;
+
+    const loaded = await Store.get();
+    ST = (loaded && loaded.users && loaded.data) ? loaded : blankState();
+    ensureUser(ST, ST.active);
+    await Store.set(ST);
+
+    $("#uiPacks").textContent = "ok";
+
+    wire();
+    fillParentFields();
+    renderReports();
+    view("home");
+  }
+
+  boot();
+})();
+</script>
 </body>
 </html>
