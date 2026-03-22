@@ -265,6 +265,24 @@
     updateProgress();
   }
 
+  // LEX-9000 feedback varianten
+  const LEX_CORRECT = [
+    "Uitstekend, menselijk brein!",
+    "Berekend en correct!",
+    "Mijn sensoren detecteren: SLIM!",
+    "Data verwerkt — antwoord klopt!",
+    "Mission accomplished! 🚀",
+    "Mijn circuits knipperen van trots!",
+    "Jij leert sneller dan mijn algoritme verwachtte!"
+  ];
+  const LEX_WRONG = [
+    "Bijna! Mijn circuits zeggen: check het nog eens.",
+    "Oeps! Zelfs robots leren van fouten — jij ook!",
+    "Niet getreurd — herprogrammeren!",
+    "Mijn AI zegt: probeer het later opnieuw!",
+    "Interessante keuze. Het juiste antwoord staat groen."
+  ];
+
   function onAnswer(chosenIdx) {
     if (locked) return;
 
@@ -298,11 +316,18 @@
     feedback.classList.toggle("good", isCorrect);
     feedback.classList.toggle("bad", !isCorrect);
 
-    const title = isCorrect ? "Goed zo!" : "Bijna!";
+    const lexMsg = isCorrect
+      ? LEX_CORRECT[Math.floor(Math.random() * LEX_CORRECT.length)]
+      : LEX_WRONG[Math.floor(Math.random() * LEX_WRONG.length)];
 
     feedback.innerHTML = `
-      <div><strong>${title}</strong> ${isCorrect ? "Dat is correct." : "Het goede antwoord staat groen."}</div>
-      <div class="why">${escapeHtml(q.why || "Slim gekozen. Wil je de uitleg nog eens? Vraag het gerust aan de AI-tutor.")}</div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:26px;line-height:1;flex-shrink:0;" aria-hidden="true">🤖</div>
+        <div>
+          <div><strong>${escapeHtml(lexMsg)}</strong></div>
+          <div class="why">${escapeHtml(q.why || "Slim gekozen. Wil je de uitleg nog eens? Vraag het gerust aan de AI-tutor.")}</div>
+        </div>
+      </div>
     `;
 
     btnNext.disabled = false;
@@ -379,10 +404,11 @@
     // Make unique
     const unique = Array.from(new Set(list));
 
-    unique.forEach(txt => {
+    unique.forEach((txt, i) => {
       const b = document.createElement("span");
       b.className = "badge";
       b.textContent = txt;
+      b.style.animationDelay = `${i * 0.1}s`;
       badges.appendChild(b);
     });
   }

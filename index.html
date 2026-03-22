@@ -4,57 +4,90 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sanne AI Game — Toets & Adaptief oefenen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b1220; --panel:#101b33; --text:#eef2ff; --muted:#b9c2da;
-  --accent:#7dd3fc; --good:#34d399; --bad:#fb7185; --warn:#fbbf24; --focus:#fde047;
-  --r:16px; --tap:44px; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --bg:#1a0e2e; --panel:#241545; --text:#f0e8ff; --muted:#b8a8d4;
+  --accent:#a855f7; --good:#2ee8a0; --bad:#ff6b8a; --warn:#ffd166; --focus:#fbbf24;
+  --r:18px; --tap:44px; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);
-  background: radial-gradient(1000px 700px at 20% 0%, #162547 0%, var(--bg) 60%); line-height:1.4}
+body{margin:0;font-family:'Nunito',system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);
+  background: radial-gradient(1000px 700px at 20% 0%, #2d1060 0%, var(--bg) 60%); line-height:1.4;font-size:16px}
 a{color:var(--accent)}
-header{position:sticky;top:0;z-index:10;background:rgba(11,18,32,.85);backdrop-filter:blur(8px);
-  border-bottom:1px solid rgba(255,255,255,.08)}
+header{position:sticky;top:0;z-index:10;background:rgba(26,14,46,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(168,85,247,.22)}
 .wrap{max-width:980px;margin:0 auto;padding:12px 12px}
-h1{margin:0;font-size:1.05rem}
+h1{margin:0;font-size:1.1rem;font-family:'Nunito',system-ui,sans-serif;font-weight:900}
 .sub{color:var(--muted);font-size:.92rem;margin-top:2px}
 nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-button{min-height:var(--tap);padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.18);color:var(--text);cursor:pointer;font-weight:800}
-button.primary{border-color:rgba(125,211,252,.55);background:rgba(125,211,252,.14)}
-button.good{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.14)}
-button.warn{border-color:rgba(251,191,36,.55);background:rgba(251,191,36,.14)}
-button.danger{border-color:rgba(251,113,133,.55);background:rgba(251,113,133,.14)}
-button:disabled{opacity:.55;cursor:not-allowed}
+button{min-height:var(--tap);padding:10px 14px;border-radius:20px;border:2px solid rgba(168,85,247,.35);
+  background:rgba(168,85,247,.12);color:var(--text);cursor:pointer;font-weight:800;font-family:'Nunito',system-ui,sans-serif;font-size:15px;
+  transition:transform 0.1s ease,background 0.15s ease,box-shadow 0.15s ease}
+button:hover{background:rgba(168,85,247,.25);transform:translateY(-2px);box-shadow:0 4px 12px rgba(168,85,247,.20)}
+button:active{transform:translateY(0)}
+button.primary{background:linear-gradient(135deg,#a855f7,#7c3aed);border-color:#c084fc;box-shadow:0 4px 14px rgba(168,85,247,.35)}
+button.primary:hover{background:linear-gradient(135deg,#b367ff,#8b4cf0);box-shadow:0 6px 18px rgba(168,85,247,.45)}
+button.good{border-color:rgba(46,232,160,.55);background:rgba(46,232,160,.14)}
+button.good:hover{background:rgba(46,232,160,.24)}
+button.warn{border-color:rgba(255,209,102,.55);background:rgba(255,209,102,.14)}
+button.warn:hover{background:rgba(255,209,102,.24)}
+button.danger{border-color:rgba(255,107,138,.55);background:rgba(255,107,138,.12)}
+button.danger:hover{background:rgba(255,107,138,.22)}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
 main{max-width:980px;margin:0 auto;padding:14px 12px 40px}
-.grid{display:grid;grid-template-columns:1fr;gap:12px}
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
 @media(min-width:860px){.grid{grid-template-columns:1.1fr .9fr}}
-.card{background:rgba(16,27,51,.75);border:1px solid rgba(255,255,255,.10);border-radius:var(--r);padding:14px}
+.card{background:linear-gradient(160deg,rgba(45,20,100,.75) 0%,rgba(26,14,46,.90) 100%);
+  border:1.5px solid rgba(168,85,247,.22);border-radius:var(--r);padding:16px;
+  box-shadow:0 8px 32px rgba(0,0,0,.28)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.pill{border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:8px 10px;background:rgba(0,0,0,.18);font-size:.92rem}
+.pill{border:1px solid rgba(168,85,247,.30);border-radius:999px;padding:8px 12px;
+  background:rgba(168,85,247,.10);font-size:.92rem;font-weight:700}
 .pill strong{font-family:var(--mono)}
 .small{color:var(--muted);font-size:.92rem}
-.question{font-size:1.2rem;font-weight:900}
-.answers{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+.question{font-size:1.25rem;font-weight:900;font-family:'Nunito',system-ui,sans-serif}
+.answers{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
 @media(min-width:680px){.answers{grid-template-columns:1fr 1fr}}
-.answer{min-height:56px;text-align:left}
-.correct{outline:3px solid rgba(52,211,153,.75)}
-.wrong{outline:3px solid rgba(251,113,133,.75)}
-.feedback{min-height:24px;margin-top:10px;font-weight:900}
-.feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)} .feedback.warn{color:var(--warn)}
+.answer{min-height:56px;text-align:left;border-radius:16px!important;border-width:2px!important;
+  border-color:rgba(168,85,247,.28)!important;background:rgba(45,16,96,.50)!important;font-size:15px}
+.answer:hover:not(:disabled){background:rgba(168,85,247,.18)!important;transform:translateX(3px);border-color:rgba(168,85,247,.55)!important}
+.correct{outline:none!important;border-color:rgba(46,232,160,.70)!important;background:rgba(46,232,160,.15)!important;
+  box-shadow:0 0 12px rgba(46,232,160,.22);animation:bounce-in .4s ease forwards}
+.wrong{outline:none!important;border-color:rgba(255,107,138,.65)!important;background:rgba(255,107,138,.12)!important;
+  animation:shake .4s ease}
+.feedback{min-height:24px;margin-top:12px;font-weight:700;padding:12px 14px;border-radius:16px;
+  border:2px solid rgba(168,85,247,.20);background:rgba(45,20,100,.40)}
+.feedback.good{color:var(--good);border-color:rgba(46,232,160,.50);background:rgba(46,232,160,.10);animation:bounce-in .35s ease}
+.feedback.bad{color:var(--bad);border-color:rgba(255,107,138,.50);background:rgba(255,107,138,.08);animation:shake .35s ease}
+.feedback.warn{color:var(--warn)}
 input,select,textarea{width:100%;min-height:var(--tap);padding:10px 12px;border-radius:12px;
-  border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);color:var(--text)}
+  border:1.5px solid rgba(168,85,247,.25);background:rgba(26,14,46,.60);color:var(--text)}
+input:focus,select:focus,textarea:focus{border-color:rgba(168,85,247,.60);outline:none}
 textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
-.progress{height:10px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:10px}
-.bar{height:100%;width:0%;background:rgba(125,211,252,.7);transition:width .2s ease}
-.passage{background:rgba(0,0,0,.20);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:12px;line-height:1.55}
+.progress{height:16px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:10px;
+  border:2px solid rgba(168,85,247,.28);position:relative}
+.bar{height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#a855f7,#f472b6);
+  transition:width .5s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;border-radius:999px}
+.bar::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:shimmer 2s infinite}
+.passage{background:rgba(15,8,35,.55);border:1.5px solid rgba(168,85,247,.16);border-radius:16px;padding:14px;line-height:1.65}
 .keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
 .timer{font-family:var(--mono);font-weight:900}
 .timer.bad{color:var(--bad)} .timer.warn{color:var(--warn)} .timer.good{color:var(--good)}
 :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+@keyframes bounce-in{
+  0%{transform:scale(.85);opacity:.5} 65%{transform:scale(1.06)} 100%{transform:scale(1);opacity:1}
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 50%{transform:translateX(8px)} 75%{transform:translateX(-5px)}
+}
+@keyframes shimmer{from{left:-100%} to{left:100%}}
+
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
