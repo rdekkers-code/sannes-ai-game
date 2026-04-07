@@ -241,8 +241,8 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
 </main>
 
 <!-- PIN-modal voor ouderomgeving -->
-<div id="pinOverlay" hidden style="position:fixed;inset:0;z-index:100;background:rgba(59,26,107,.55);
-  backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center">
+<div id="pinOverlay" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(59,26,107,.55);
+  backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:24px;padding:28px 24px;max-width:320px;width:90%;
     text-align:center;box-shadow:0 8px 32px rgba(168,85,247,.3)">
     <div style="font-size:2rem;margin-bottom:8px">🔒</div>
@@ -1489,16 +1489,13 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
 
   // ---------- PIN ----------
   function showPinModal(){
-    const overlay = $("#pinOverlay");
-    overlay.hidden = false;
-    overlay.style.display = "flex";
+    $("#pinOverlay").style.display = "flex";
     $("#pinInput").value = "";
     $("#pinError").textContent = "";
     setTimeout(()=>$("#pinInput").focus(), 50);
   }
 
   function hidePinModal(){
-    $("#pinOverlay").hidden = true;
     $("#pinOverlay").style.display = "none";
   }
 
