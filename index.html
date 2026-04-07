@@ -74,13 +74,13 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
 <body>
 <header>
   <div class="wrap">
-    <h1>🎮 Sanne AI Game — Toets & Adaptief oefenen</h1>
-    <div class="sub">Groep 6 • rekenen (automatiseren), lezen (vloeiendheid + begrip), Engels (woordenschat)</div>
+    <h1>🎮 Sanne's Leeravontuur</h1>
+    <div class="sub">Groep 6 • rekenen, lezen en Engels</div>
     <nav aria-label="Menu">
-      <button data-view="home" class="primary">Start</button>
-      <button data-view="session">Sessie</button>
-      <button data-view="report">Rapport</button>
-      <button data-view="parent">Ouder</button>
+      <button data-view="home" class="primary">🏠 Thuis</button>
+      <button data-view="session">▶️ Spelen</button>
+      <button data-view="report">🏆 Resultaat</button>
+      <button data-view="parent">👨‍👩‍👧 Ouders</button>
     </nav>
   </div>
 </header>
@@ -89,34 +89,28 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
   <section id="home" class="card">
     <div class="grid">
       <div class="card">
+        <p style="margin:0 0 12px 0;font-size:1.2rem;font-weight:900">Hoi <span id="uiUser">Sanne</span>! 👋 Wat wil je vandaag doen?</p>
+
+        <div class="row" style="margin-top:4px">
+          <button id="btnPracticeMixed" class="good" style="font-size:1.1rem;padding:14px 20px">🌟 Dagelijkse missie</button>
+          <button id="btnTestMixed" class="primary" style="font-size:1.1rem;padding:14px 20px">📝 Grote toets</button>
+        </div>
+
+        <p class="small" style="margin-top:14px;margin-bottom:6px;font-weight:700">Of kies een vak:</p>
         <div class="row">
-          <div class="pill">Profiel: <strong id="uiUser">Sanne</strong></div>
-          <div class="pill">Opslag: <strong id="uiStore">…</strong></div>
-          <div class="pill">Packs: <strong id="uiPacks">…</strong></div>
-        </div>
-        <p class="small" style="margin-top:10px">
-          Alles draait lokaal in de browser. Er is geen server. Je kunt altijd exporteren/importeren.
-        </p>
-
-        <div class="row" style="margin-top:10px">
-          <button id="btnPracticeMixed" class="good">🚀 Oefenen (dagmissie)</button>
-          <button id="btnTestMixed" class="primary">📝 Toets (benchmark)</button>
+          <button id="btnPracticeMath">➕ Rekenen</button>
+          <button id="btnPracticeRead">📖 Lezen</button>
+          <button id="btnPracticeEng">🇬🇧 Engels</button>
         </div>
 
-        <div class="row" style="margin-top:10px">
-          <button id="btnPracticeMath">➕ Oefenen rekenen</button>
-          <button id="btnPracticeRead">📖 Oefenen lezen</button>
-          <button id="btnPracticeEng">🇬🇧 Oefenen Engels</button>
-        </div>
-
-        <p class="small" style="margin-top:10px">
-          Tip: 10–15 минут kort oefenen voor automatiseren; lezen met herhaald lezen (instelbaar).
+        <p class="small" style="margin-top:12px">
+          💡 Tip: oefen elke dag een beetje — dan onthoud je het veel beter!
         </p>
       </div>
 
       <div class="card">
-        <h2 style="margin:0 0 6px 0;font-size:1.05rem">Snelle status</h2>
-        <div id="uiQuick" class="small">Nog geen sessies.</div>
+        <h2 style="margin:0 0 6px 0;font-size:1.05rem">Hoe gaat het? ⭐</h2>
+        <div id="uiQuick" class="small">Je hebt nog niet gespeeld. Druk op <strong>Dagelijkse missie</strong> om te starten!</div>
         <div class="progress" aria-label="Voortgang"><div id="uiProg" class="bar"></div></div>
         <p class="small" style="margin-top:10px" id="uiHint">—</p>
       </div>
@@ -126,11 +120,11 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
   <section id="session" class="card" hidden>
     <div class="row" style="justify-content:space-between">
       <div class="row">
-        <div class="pill">Mode: <strong id="uiMode">-</strong></div>
-        <div class="pill">Domein: <strong id="uiDom">-</strong></div>
-        <div class="pill">Stap: <strong id="uiStep">0/0</strong></div>
+        <div class="pill" style="display:none"><strong id="uiMode">-</strong></div>
+        <div class="pill">📚 Vak: <strong id="uiDom">-</strong></div>
+        <div class="pill">⭐ Vraag: <strong id="uiStep">0/0</strong></div>
       </div>
-      <div class="pill">Timer: <span id="uiTimer" class="timer">--</span></div>
+      <div class="pill">⏱ <span id="uiTimer" class="timer">--</span></div>
     </div>
 
     <div class="progress"><div id="uiBar" class="bar"></div></div>
@@ -142,10 +136,10 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
     </div>
 
     <div class="row" style="margin-top:12px;justify-content:space-between">
-      <button id="btnQuit">← Stoppen</button>
+      <button id="btnQuit">🚪 Stoppen</button>
       <div class="row">
-        <button id="btnSkip">Overslaan</button>
-        <button id="btnNext" class="primary" disabled>Volgende →</button>
+        <button id="btnSkip">Sla over ➡️</button>
+        <button id="btnNext" class="primary" disabled>Volgende ➡️</button>
       </div>
     </div>
   </section>
@@ -153,15 +147,15 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
   <section id="report" class="card" hidden>
     <div class="grid">
       <div class="card">
-        <h2 style="margin:0 0 6px 0;font-size:1.05rem">Laatste sessie</h2>
-        <div id="uiLast" class="small">Nog geen sessie.</div>
+        <h2 style="margin:0 0 6px 0;font-size:1.1rem">Hoe ging het? 🎉</h2>
+        <div id="uiLast" class="small">Je hebt nog niet gespeeld!</div>
         <div class="row" style="margin-top:10px">
-          <button id="btnAgain" class="primary">Nog een sessie</button>
-          <button id="btnHome">Terug</button>
+          <button id="btnAgain" class="primary">🔄 Speel nog een keer!</button>
+          <button id="btnHome">🏠 Terug naar huis</button>
         </div>
       </div>
       <div class="card">
-        <h2 style="margin:0 0 6px 0;font-size:1.05rem">Geschiedenis</h2>
+        <h2 style="margin:0 0 6px 0;font-size:1.1rem">Eerdere resultaten 📅</h2>
         <div id="uiHist" class="small">—</div>
       </div>
     </div>
@@ -796,11 +790,17 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
     $("#uiBar").style.width = `${Math.round(((SESS.step-1)/SESS.total)*100)}%`;
   }
 
+  const GOOD_MSGS = ["🎉 Super goed!", "⭐ Geweldig!", "🌟 Fantastisch!", "🎊 Joepie, goed!", "👏 Helemaal goed!", "🚀 Topprestatie!"];
+  const BAD_MSGS  = ["💪 Bijna! Probeer het nog een keer.", "😊 Oefening baart kunst!", "🌈 Bijna! Volgende keer lukt het.", "💡 Bijna!"];
+
   function fb(text, kind){
     const el=$("#uiFb");
     el.className="feedback "+(kind||"");
     el.textContent=text||"";
   }
+
+  function goodFb(){ return GOOD_MSGS[Math.floor(Math.random()*GOOD_MSGS.length)]; }
+  function badFb(correct){ return BAD_MSGS[Math.floor(Math.random()*BAD_MSGS.length)] + " Het goede antwoord was: " + correct; }
 
   function startSession(mode, domain){
     const s=ST.settings;
@@ -1061,7 +1061,7 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
       if(SESS.mode==="test"){
         fb(ok?"OK":"Genoteerd", ok?"good":"warn");
       }else{
-        fb(ok?"Goed!":"Bijna. Goed: "+item.answer.value, ok?"good":"bad");
+        fb(ok?goodFb():badFb(item.answer.value), ok?"good":"bad");
       }
       finalize(ok, rt, { given: input.value, expected: item.answer.value });
     }
@@ -1106,7 +1106,7 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
         if(SESS.mode==="test"){
           fb(ok?"OK":"Genoteerd", ok?"good":"warn");
         }else{
-          fb(ok?"Goed!":"Bijna. Goed: "+item.answer.value, ok?"good":"bad");
+          fb(ok?goodFb():badFb(item.answer.value), ok?"good":"bad");
         }
         finalize(ok, rt, { given: input.value, expected: item.answer.value });
       }
@@ -1132,7 +1132,7 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
       if(SESS.mode==="test"){
         fb(ok?"OK":"Genoteerd", ok?"good":"warn");
       }else{
-        fb(ok?"Goed!":"Bijna. Goed: "+correctText, ok?"good":"bad");
+        fb(ok?goodFb():badFb(correctText), ok?"good":"bad");
       }
       finalize(ok, rt, { given: chosen, expected: item.answer.value });
     });
@@ -1224,7 +1224,7 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
       if(SESS.mode==="test"){
         fb(ok?"OK":"Genoteerd", ok?"good":"warn");
       }else{
-        fb(ok?"Goed!":"Bijna. Goed: "+q.choices[q.correctIndex], ok?"good":"bad");
+        fb(ok?goodFb():badFb(q.choices[q.correctIndex]), ok?"good":"bad");
       }
 
       const last = (r.qi===r.item.questions.length-1);
@@ -1505,7 +1505,7 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
 })();
 </script>
 <footer style="text-align:center;padding:16px 12px 24px;color:#a78bca;font-size:.78rem;font-family:'Nunito',system-ui,Arial">
-  v1.1.0 — kindvriendelijk thema
+  v1.2.0 — kindvriendelijke teksten & navigatie
 </footer>
 </body>
 </html>
