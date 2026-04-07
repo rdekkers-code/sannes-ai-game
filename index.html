@@ -200,6 +200,15 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
           <button id="btnReset">Reset</button>
         </div>
 
+        <h3 style="margin:12px 0 6px 0;font-size:1rem">Pincode wijzigen</h3>
+        <label>Nieuwe pincode</label>
+        <input id="setPinNew" type="password" inputmode="numeric" maxlength="10" placeholder="Nieuwe pincode">
+        <label style="margin-top:8px">Bevestig pincode</label>
+        <input id="setPinConfirm" type="password" inputmode="numeric" maxlength="10" placeholder="Zelfde pincode nogmaals">
+        <div class="row" style="margin-top:8px">
+          <button id="btnSavePin" class="warn">🔑 Pincode opslaan</button>
+        </div>
+
         <h3 style="margin:12px 0 6px 0;font-size:1rem">Export / Import</h3>
         <div class="row">
           <button id="btnExport" class="good">⬇ Export JSON</button>
@@ -230,6 +239,26 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
     </div>
   </section>
 </main>
+
+<!-- PIN-modal voor ouderomgeving -->
+<div id="pinOverlay" hidden style="position:fixed;inset:0;z-index:100;background:rgba(59,26,107,.55);
+  backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:24px;padding:28px 24px;max-width:320px;width:90%;
+    text-align:center;box-shadow:0 8px 32px rgba(168,85,247,.3)">
+    <div style="font-size:2rem;margin-bottom:8px">🔒</div>
+    <h2 style="margin:0 0 6px 0;font-size:1.2rem;color:#3b1a6b">Ouderomgeving</h2>
+    <p style="margin:0 0 16px 0;font-size:.95rem;color:#7c5c9e">Vul de pincode in om verder te gaan.</p>
+    <input id="pinInput" type="password" inputmode="numeric" maxlength="10"
+      placeholder="••••"
+      style="text-align:center;font-size:1.5rem;letter-spacing:.3em;border:2px solid #e9d5ff;
+        border-radius:14px;padding:10px;width:100%;background:#f5f3ff;color:#3b1a6b;font-family:inherit">
+    <p id="pinError" style="color:#be123c;font-size:.9rem;min-height:1.2em;margin:8px 0 0 0"></p>
+    <div style="display:flex;gap:10px;margin-top:14px;justify-content:center">
+      <button id="pinCancel" style="background:#f3e8ff;color:#6b21a8;box-shadow:0 3px 0 #d8b4fe">Annuleren</button>
+      <button id="pinOk" class="primary">Inloggen</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (() => {
@@ -356,7 +385,8 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
     timers: { mathSec: 10, engSec: 14 },
     english: { dueFrac: 0.70 },
     anti: { recentMax: 60 },
-    test: { affectsSrs: false }
+    test: { affectsSrs: false },
+    parentPin: "2580"
   };
 
   // ---------- State ----------
@@ -1457,9 +1487,51 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
     view("home");
   }
 
+  // ---------- PIN ----------
+  function showPinModal(){
+    const overlay = $("#pinOverlay");
+    overlay.hidden = false;
+    overlay.style.display = "flex";
+    $("#pinInput").value = "";
+    $("#pinError").textContent = "";
+    setTimeout(()=>$("#pinInput").focus(), 50);
+  }
+
+  function hidePinModal(){
+    $("#pinOverlay").hidden = true;
+    $("#pinOverlay").style.display = "none";
+  }
+
+  function checkPin(){
+    const entered = $("#pinInput").value.trim();
+    const correct = (ST.settings.parentPin || "2580");
+    if(entered === correct){
+      hidePinModal();
+      view("parent");
+    } else {
+      $("#pinError").textContent = "Verkeerde pincode, probeer het opnieuw.";
+      $("#pinInput").value = "";
+      $("#pinInput").focus();
+    }
+  }
+
+  function savePin(){
+    const n = $("#setPinNew").value.trim();
+    const c = $("#setPinConfirm").value.trim();
+    if(!n){ $("#uiParentMsg").textContent = "Vul een nieuwe pincode in."; return; }
+    if(n !== c){ $("#uiParentMsg").textContent = "Pincodes komen niet overeen."; return; }
+    ST.settings.parentPin = n;
+    $("#setPinNew").value = "";
+    $("#setPinConfirm").value = "";
+    $("#uiParentMsg").textContent = "Pincode gewijzigd en opgeslagen.";
+    persist();
+  }
+
   // ---------- wire UI ----------
   function wire(){
-    $$("button[data-view]").forEach(b=>b.onclick=()=>view(b.dataset.view));
+    $$("button[data-view]").forEach(b=>b.onclick=()=>{
+      if(b.dataset.view==="parent"){ showPinModal(); } else { view(b.dataset.view); }
+    });
 
     $("#btnPracticeMixed").onclick=()=>startSession("practice","mixed");
     $("#btnTestMixed").onclick=()=>startSession("test","mixed");
@@ -1474,7 +1546,12 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
     $("#btnAgain").onclick=()=>startSession("practice","mixed");
     $("#btnHome").onclick=()=>view("home");
 
+    $("#pinOk").onclick=checkPin;
+    $("#pinCancel").onclick=hidePinModal;
+    $("#pinInput").onkeydown=e=>{ if(e.key==="Enter") checkPin(); };
+
     $("#btnSave").onclick=saveParent;
+    $("#btnSavePin").onclick=savePin;
     $("#btnReset").onclick=resetSettings;
     $("#btnAddUser").onclick=addUser;
     $("#selUser").onchange=switchUser;
@@ -1507,7 +1584,7 @@ textarea{min-height:120px;font-family:var(--mono);font-size:.9rem}
 })();
 </script>
 <footer style="text-align:center;padding:16px 12px 24px;color:#a78bca;font-size:.78rem;font-family:'Nunito',system-ui,Arial">
-  v1.2.0 — kindvriendelijke teksten & navigatie
+  v1.3.0 — pincodebeveiliging ouderomgeving
 </footer>
 </body>
 </html>
